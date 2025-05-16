@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+	<TargetPlatformVersion>10.0.18362.0</TargetPlatformVersion>
+	<TargetPlatformIdentifier>Windows</TargetPlatformIdentifier>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="MVVM\View\images\icons\calendar.png" />
+    <None Remove="MVVM\View\images\icons\defaultavatar.png" />
+    <None Remove="MVVM\View\images\icons\exit48.png" />
+    <None Remove="MVVM\View\images\icons\exit96.png" />
+    <None Remove="MVVM\View\images\icons\main48x48.png" />
+    <None Remove="MVVM\View\images\icons\main96x96.png" />
+    <None Remove="MVVM\View\images\icons\search.png" />
+    <None Remove="MVVM\View\images\icons\settings.png" />
+    <None Remove="MVVM\View\images\icons\settings48.png" />
+    <None Remove="MVVM\View\images\icons\sms.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.10" />
+    <PackageReference Include="MaterialDesignThemes" Version="5.2.1" />
+    <PackageReference Include="MaterialDesignThemes.MahApps" Version="5.2.1" />
+    <PackageReference Include="MaterialDesignThemes.Wpf" Version="1.0.1" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="6.0.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.4" />
+    <PackageReference Include="MvvmLight" Version="5.4.1.1" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.9.0" />
+    <PackageReference Include="System.Text.Json" Version="9.0.4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="MVVM\View\images\icons\calendar.png" />
+    <Resource Include="MVVM\View\images\icons\defaultavatar.png" />
+    <Resource Include="MVVM\View\images\icons\exit48.png" />
+    <Resource Include="MVVM\View\images\icons\exit96.png" />
+    <Resource Include="MVVM\View\images\icons\main48x48.png" />
+    <Resource Include="MVVM\View\images\icons\main96x96.png" />
+    <Resource Include="MVVM\View\images\icons\search.png" />
+    <Resource Include="MVVM\View\images\icons\settings.png" />
+    <Resource Include="MVVM\View\images\icons\settings48.png" />
+    <Resource Include="MVVM\View\images\icons\sms.png" />
+  </ItemGroup>
+
+</Project>

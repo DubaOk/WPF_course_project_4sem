@@ -1,0 +1,26 @@
+# Visual Studio
+.vs/
+*.user
+*.suo
+*.vcxproj.user
+
+# Build results
+[Bb]in/
+[Oo]bj/
+*.dll
+*.exe
+
+# Temporary files
+*.tmp
+*.log
+*.cache
+*.pid
+*.svd
+*.sdf
+
+# Office temp files
+~$*
+
+# Rider/JetBrains
+.idea/
+*.iml

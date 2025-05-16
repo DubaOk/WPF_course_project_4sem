@@ -1,0 +1,68 @@
+﻿<mah:MetroWindow x:Class="Coach_search.MVVM.View.BookingDetailsWindow"
+                 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+                 xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                 Title="Занятия за день" 
+                 Height="700" 
+                 Width="600"
+                 WindowStartupLocation="CenterScreen"
+                 GlowBrush="{DynamicResource MahApps.Brushes.Accent}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" 
+                   Text="{Binding SelectedDate, StringFormat='Занятия на {0:dd MMMM yyyy}', ConverterCulture='ru-RU'}"
+                   Style="{StaticResource HeaderText}"
+                   Margin="0,0,0,20"/>
+
+        <!-- Список бронирований -->
+        <ScrollViewer Grid.Row="1" Style="{StaticResource CustomScrollViewer}">
+            <ItemsControl ItemsSource="{Binding Bookings}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource CardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="{Binding ClientName}" Style="{StaticResource SubHeaderText}"/>
+                                    <TextBlock Text="{Binding DateTime, StringFormat='Время: {0:HH:mm}'}" Style="{StaticResource BodyText}"/>
+                                    <TextBlock Text="{Binding Status}" Style="{StaticResource BodyText}"/>
+                                </StackPanel>
+                                <Button Grid.Column="1"
+                                        Content="Принять"
+                                        Command="{Binding DataContext.AcceptBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+                                        CommandParameter="{Binding Id}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Margin="5"/>
+                                <Button Grid.Column="2"
+                                        Content="Отклонить"
+                                        Command="{Binding DataContext.RejectBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+                                        CommandParameter="{Binding Id}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Margin="5"/>
+                                <Button Grid.Column="3"
+                                        Content="Переписка"
+                                        Command="{Binding DataContext.OpenChatCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+                                        CommandParameter="{Binding ClientId}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Margin="5"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+    </Grid>
+</mah:MetroWindow>
