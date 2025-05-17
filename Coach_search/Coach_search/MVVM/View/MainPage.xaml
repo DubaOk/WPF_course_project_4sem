@@ -15,11 +15,11 @@
             <StackPanel>
                 <TextBlock Text="TutorSearch" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,24"/>
                 <Button Content="Главная" Command="{Binding NavigateCommand}" CommandParameter="MainPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
-                <Button Content="Поиск" Command="{Binding NavigateCommand}" CommandParameter="SearchPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
                 <Button Content="Расписание" Command="{Binding NavigateCommand}" CommandParameter="SchedulePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
                 <Button Content="Сообщения" Command="{Binding NavigateCommand}" CommandParameter="MessagesPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
-                <Button Content="Личный кабинет репетитора" Command="{Binding NavigateCommand}" CommandParameter="SettingsPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
-                <Button Content="Личный кабинет клиента" Command="{Binding NavigateCommand}" CommandParameter="ClientProfilePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
+                <Button Content="Личный кабинет" Command="{Binding NavigateCommand}" CommandParameter="SettingsPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Личный кабинет" Command="{Binding NavigateCommand}" CommandParameter="ClientProfilePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsClient, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Панель администратора" Command="{Binding NavigateCommand}" CommandParameter="AdminPanelPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <Button Content="Выход" Command="{Binding LogoutCommand}" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
             </StackPanel>
         </Border>
@@ -76,6 +76,7 @@
                                         <Button Content="Записаться" 
                                                 Command="{Binding DataContext.EnrollCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
                                                 CommandParameter="{Binding}" 
+                                                Visibility="{Binding IsClient, Converter={StaticResource BooleanToVisibilityConverter}}"
                                                 Style="{StaticResource SecondaryButton}" 
                                                 Margin="0,0,0,8" 
                                                 Width="120" 

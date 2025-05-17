@@ -11,7 +11,7 @@ namespace Coach_search.Data
     {
         public string ConnectionString { get; } = "Server=Duba;Database=CoachSearchDb;Trusted_Connection=True;Encrypt=False;Connect Timeout=5;";
 
-        public int AddUser(string name, string email, string passwordHash, UserType userType)
+        public int AddUser(string name, string email, string passwordHash, Coach_search.Models.UserType userType)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
@@ -184,7 +184,6 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                // Добавляем отзыв
                 string insertQuery = @"INSERT INTO Reviews (ClientId, TutorId, Text, Rating, CreatedAt, BookingId)
                               VALUES (@ClientId, @TutorId, @Text, @Rating, @CreatedAt, @BookingId)";
                 using (var command = new SqlCommand(insertQuery, connection))
@@ -198,7 +197,6 @@ namespace Coach_search.Data
                     command.ExecuteNonQuery();
                 }
 
-                // Обновляем рейтинг репетитора
                 string updateRatingQuery = @"UPDATE Tutors 
                                     SET Rating = (SELECT AVG(CAST(Rating AS FLOAT)) FROM Reviews WHERE TutorId = @TutorId)
                                     WHERE Id = @TutorId";
@@ -335,7 +333,6 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                // Проверка существующих бронирований
                 string checkQuery = @"SELECT COUNT(*) 
                             FROM Bookings 
                             WHERE TutorId = @TutorId 
@@ -352,7 +349,6 @@ namespace Coach_search.Data
                     }
                 }
 
-                // Добавление новой записи
                 string insertQuery = @"INSERT INTO Bookings (ClientId, TutorId, DateTime, Status)
                               VALUES (@ClientId, @TutorId, @DateTime, @Status)";
                 using (var command = new SqlCommand(insertQuery, connection))
@@ -461,6 +457,169 @@ namespace Coach_search.Data
                 }
             }
             return reviews;
+        }
+
+        public List<Coach_search.Models.User> GetAllUsers()
+        {
+            var users = new List<Coach_search.Models.User>();
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "SELECT Id, Name, Email, UserType, IsBlocked FROM Users";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            users.Add(new Coach_search.Models.User
+                            {
+                                Id = reader.GetInt32(0),
+                                Name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
+                                Email = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
+                                UserType = Enum.Parse<Coach_search.Models.UserType>(reader.GetString(3)),
+                                IsBlocked = reader.GetBoolean(4)
+                            });
+                        }
+                    }
+                }
+            }
+            return users;
+        }
+
+        public void ToggleUserBlock(int userId, bool isBlocked)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "UPDATE Users SET IsBlocked = @IsBlocked WHERE Id = @Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", userId);
+                    command.Parameters.AddWithValue("@IsBlocked", isBlocked);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateUser(Coach_search.Models.User user)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "UPDATE Users SET Name = @Name, Email = @Email, UserType = @UserType WHERE Id = @Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", user.Id);
+                    command.Parameters.AddWithValue("@Name", user.Name);
+                    command.Parameters.AddWithValue("@Email", user.Email);
+                    command.Parameters.AddWithValue("@UserType", user.UserType.ToString());
+                    command.ExecuteNonQuery();
+                }
+
+                if (user.UserType == Coach_search.Models.UserType.Tutor)
+                {
+                    string checkTutorQuery = "SELECT COUNT(*) FROM Tutors WHERE UserId = @UserId";
+                    using (var command = new SqlCommand(checkTutorQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserId", user.Id);
+                        int count = (int)command.ExecuteScalar();
+                        if (count == 0)
+                        {
+                            var tutor = new Tutor
+                            {
+                                UserId = user.Id,
+                                Name = user.Name,
+                                Rating = 0,
+                                PricePerHour = 0
+                            };
+                            AddTutor(tutor);
+                        }
+                    }
+                }
+                else if (user.UserType == Coach_search.Models.UserType.Client)
+                {
+                    string checkClientQuery = "SELECT COUNT(*) FROM Clients WHERE UserId = @UserId";
+                    using (var command = new SqlCommand(checkClientQuery, connection))
+                    {
+                        command.Parameters.AddWithValue("@UserId", user.Id);
+                        int count = (int)command.ExecuteScalar();
+                        if (count == 0)
+                        {
+                            var client = new Client
+                            {
+                                UserId = user.Id,
+                                Name = user.Name
+                            };
+                            AddClient(client);
+                        }
+                    }
+                }
+            }
+        }
+
+        public List<Review> GetAllReviews()
+        {
+            var reviews = new List<Review>();
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = @"SELECT r.Id, r.ClientId, r.TutorId, r.Text, r.Rating, r.CreatedAt, r.BookingId, t.Name AS TutorName
+                               FROM Reviews r
+                               JOIN Tutors t ON r.TutorId = t.Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            reviews.Add(new Review
+                            {
+                                Id = reader.GetInt32(0),
+                                ClientId = reader.GetInt32(1),
+                                TutorId = reader.GetInt32(2),
+                                Text = reader.GetString(3),
+                                Rating = reader.GetInt32(4),
+                                CreatedAt = reader.GetDateTime(5),
+                                BookingId = reader.GetInt32(6),
+                                TutorName = reader.GetString(7)
+                            });
+                        }
+                    }
+                }
+            }
+            return reviews;
+        }
+
+        public void DeleteReview(int reviewId)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string getTutorQuery = "SELECT TutorId FROM Reviews WHERE Id = @ReviewId";
+                int tutorId;
+                using (var command = new SqlCommand(getTutorQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ReviewId", reviewId);
+                    tutorId = (int)command.ExecuteScalar();
+                }
+
+                string deleteQuery = "DELETE FROM Reviews WHERE Id = @ReviewId";
+                using (var command = new SqlCommand(deleteQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@ReviewId", reviewId);
+                    command.ExecuteNonQuery();
+                }
+
+                string updateRatingQuery = @"UPDATE Tutors 
+                                           SET Rating = (SELECT AVG(CAST(Rating AS FLOAT)) FROM Reviews WHERE TutorId = @TutorId)
+                                           WHERE Id = @TutorId";
+                using (var command = new SqlCommand(updateRatingQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@TutorId", tutorId);
+                    command.ExecuteNonQuery();
+                }
+            }
         }
     }
 }

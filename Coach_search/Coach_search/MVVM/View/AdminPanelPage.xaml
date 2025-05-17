@@ -1,0 +1,84 @@
+﻿<Page x:Class="Coach_search.MVVM.View.AdminPanelPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
+      xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      Title="Админ-панель"
+      Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Заголовок -->
+        <TextBlock Grid.Row="0" Text="Админ-панель" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="#333"/>
+
+        <!-- Управление пользователями -->
+        <Border Grid.Row="1" CornerRadius="8" Background="{DynamicResource MahApps.Brushes.Control.Background}" Padding="20" Margin="0,0,0,20">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Список пользователей -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Управление пользователями" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" Foreground="#333"/>
+                    <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" Height="200" Margin="0,0,0,10">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="{Binding Name}" Margin="5"/>
+                                    <TextBlock Text="{Binding Email}" Margin="5"/>
+                                    <TextBlock Text="{Binding UserType}" Margin="5"/>
+                                    <TextBlock Text="{Binding IsBlocked, StringFormat='Статус: {0:Заблокирован|Активен}'}" Margin="5"/>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                    <StackPanel Orientation="Horizontal">
+                        <Button Content="Блокировать/Разблокировать" Command="{Binding BlockUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}"/>
+                        <Button Content="Сохранить изменения" Command="{Binding UpdateUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Редактирование пользователя -->
+                <StackPanel Grid.Column="1" Margin="20,0,0,0" Width="300">
+                    <TextBlock Text="Редактировать пользователя" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
+                    <TextBlock Text="Имя" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding SelectedUser.Name, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.Watermark="Введите имя" Margin="0,0,0,10"/>
+                    <TextBlock Text="Email" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding SelectedUser.Email, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.Watermark="Введите email" Margin="0,0,0,10"/>
+                    <TextBlock Text="Тип пользователя" Margin="0,0,0,5"/>
+                    <ComboBox SelectedValue="{Binding SelectedUser.UserType, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" Margin="0,0,0,10">
+                        <ComboBoxItem Content="Client"/>
+                        <ComboBoxItem Content="Tutor"/>
+                        <ComboBoxItem Content="Admin"/>
+                    </ComboBox>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- Модерация отзывов -->
+        <Border Grid.Row="2" CornerRadius="8" Background="{DynamicResource MahApps.Brushes.Control.Background}" Padding="20">
+            <StackPanel>
+                <TextBlock Text="Модерация отзывов" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" Foreground="#333"/>
+                <ListBox ItemsSource="{Binding Reviews}" SelectedItem="{Binding SelectedReview}" Height="200" Margin="0,0,0,10">
+                    <ListBox.ItemTemplate>
+                        <DataTemplate>
+                            <StackPanel>
+                                <TextBlock Text="{Binding TutorName, StringFormat='Репетитор: {0}'}" FontWeight="Bold"/>
+                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
+                                <TextBlock Text="{Binding Rating, StringFormat='Рейтинг: {0} ★'}"/>
+                                <TextBlock Text="{Binding CreatedAt, StringFormat='Создан: {0:dd MMMM yyyy HH:mm}'}"/>
+                            </StackPanel>
+                        </DataTemplate>
+                    </ListBox.ItemTemplate>
+                </ListBox>
+                <Button Content="Удалить отзыв" Command="{Binding DeleteReviewCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

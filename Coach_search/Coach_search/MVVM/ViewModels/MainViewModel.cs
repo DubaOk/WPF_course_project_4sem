@@ -124,6 +124,10 @@ namespace Coach_search.ViewModels
             }
         }
 
+        public bool IsAdmin => UserType == UserType.Admin;
+        public bool IsClient => UserType == UserType.Client;
+        public bool IsTutor => UserType == UserType.Tutor;
+
         public ICommand ShowTutorDetailsCommand { get; }
         public ICommand ShowTutorProfileCommand { get; }
         public ICommand NavigateCommand { get; }
@@ -138,6 +142,7 @@ namespace Coach_search.ViewModels
             _userName = userName;
             _userType = userType;
             _userId = userId;
+            
 
             _allTutors = new ObservableCollection<Tutor>(_dbHelper.GetTutors());
             Tutors = new ObservableCollection<Tutor>(_allTutors);
@@ -190,7 +195,7 @@ namespace Coach_search.ViewModels
             EnrollCommand = new RelayCommand(Enroll);
             ClientProfilePage = new RelayCommand(Navigate);
 
-            System.Diagnostics.Debug.WriteLine($"MainViewModel initialized: userId={_userId}, userType={_userType}, IsClient={IsClient}");
+            System.Diagnostics.Debug.WriteLine($"MainViewModel initialized: userId={_userId}, userType={_userType}, IsClient={IsClient}, IsAdmin={IsAdmin}");
         }
 
         private void ShowTutorDetails(object parameter)
@@ -200,7 +205,7 @@ namespace Coach_search.ViewModels
                 System.Diagnostics.Debug.WriteLine($"Opening TutorDetailsWindow for tutor: {SelectedTutor.Name}");
                 var viewModel = new TutorDetailsViewModel(SelectedTutor);
                 var window = new TutorDetailsWindow(viewModel);
-                window.ShowDialog(); // Открываем окно как модальное
+                window.ShowDialog();
             }
             else
             {
@@ -221,12 +226,6 @@ namespace Coach_search.ViewModels
                 System.Diagnostics.Debug.WriteLine("ShowTutorProfile failed: invalid frame");
             }
         }
-
-
-
-        public bool IsClient => UserType == UserType.Client;
-        public bool IsTutor => UserType == UserType.Tutor;
-
         private void Navigate(object parameter)
         {
             System.Diagnostics.Debug.WriteLine($"Navigate called with parameter: {parameter ?? "null"}");
@@ -263,7 +262,7 @@ namespace Coach_search.ViewModels
                     break;
                 case "SearchPage":
                     System.Diagnostics.Debug.WriteLine("SearchPage navigation not implemented.");
-                    
+                    MessageBox.Show("Страница поиска пока не реализована.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
                     break;
                 case "SchedulePage":
                     if (UserType == UserType.Tutor)
@@ -272,7 +271,7 @@ namespace Coach_search.ViewModels
                     }
                     else
                     {
-                        System.Diagnostics.Debug.WriteLine("SettingsPage access denied: user is not a tutor.");
+                        System.Diagnostics.Debug.WriteLine("SchedulePage access denied: user is not a tutor.");
                         MessageBox.Show("Расписание доступно только для репетиторов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     break;
@@ -300,6 +299,17 @@ namespace Coach_search.ViewModels
                     {
                         System.Diagnostics.Debug.WriteLine("ClientProfilePage access denied: user is not a client.");
                         MessageBox.Show("Личный кабинет доступен только для клиентов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                    }
+                    break;
+                case "AdminPanelPage":
+                    if (UserType == UserType.Admin)
+                    {
+                        frame.Navigate(new AdminPanelPage(UserId));
+                    }
+                    else
+                    {
+                        System.Diagnostics.Debug.WriteLine("AdminPanelPage access denied: user is not an admin.");
+                        MessageBox.Show("Админ-панель доступна только для администраторов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                     }
                     break;
                 default:
