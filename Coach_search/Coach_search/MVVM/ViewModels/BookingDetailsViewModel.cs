@@ -3,6 +3,7 @@ using Coach_search.Models;
 using Coach_search.MVVM.View;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace Coach_search.ViewModels
             {
                 System.Diagnostics.Debug.WriteLine($"Error initializing BookingDetailsViewModel: {ex.Message}\nInner Exception: {ex.InnerException?.Message}\nStackTrace: {ex.StackTrace}");
                 MessageBox.Show($"Ошибка при инициализации окна: {ex.Message}\nПодробности: {ex.InnerException?.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
-                _bookings = new ObservableCollection<Booking>(); // Инициализация пустой коллекции в случае ошибки
+                _bookings = new ObservableCollection<Booking>();
             }
         }
 
@@ -137,10 +138,9 @@ namespace Coach_search.ViewModels
                 var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
                 if (booking != null)
                 {
-                    booking.Status = "Подтверждено";
-                    OnPropertyChanged(nameof(booking.Status)); // Обновляем только изменённый элемент
-                    OnPropertyChanged("Bookings"); // Уведомляем об изменении коллекции
+                    booking.Status = "Подтверждено"; // Это уведомит UI через INotifyPropertyChanged
                 }
+                Messenger.Default.Send(new NotificationMessage("BookingUpdated"));
                 MessageBox.Show("Бронирование подтверждено!", "Успех");
             }
             catch (Exception ex)
@@ -154,13 +154,22 @@ namespace Coach_search.ViewModels
         {
             try
             {
-                _dbHelper.UpdateBookingStatus(bookingId, "Отклонено");
+                _dbHelper.DeleteBooking(bookingId);
                 var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
                 if (booking != null)
                 {
-                    booking.Status = "Отклонено";
-                    OnPropertyChanged(nameof(booking.Status)); // Обновляем только изменённый элемент
-                    OnPropertyChanged("Bookings"); // Уведомляем об изменении коллекции
+                    _bookings.Remove(booking); // Это уведомит UI через ObservableCollection
+                    Messenger.Default.Send(new NotificationMessage("BookingDeleted"));
+
+                    // Если бронирований больше нет, закрываем окно
+                    if (!_bookings.Any())
+                    {
+                        Application.Current.Dispatcher.Invoke(() =>
+                        {
+                            var window = Application.Current.Windows.OfType<BookingDetailsWindow>().FirstOrDefault();
+                            window?.Close();
+                        });
+                    }
                 }
                 MessageBox.Show("Бронирование отклонено!", "Успех");
             }

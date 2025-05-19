@@ -15,12 +15,34 @@
     </mah:MetroWindow.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <!-- Для заголовка и кнопки "Назад" -->
+            <RowDefinition Height="*"/>
+            <!-- Список сообщений -->
+            <RowDefinition Height="Auto"/>
+            <!-- Поле ввода -->
         </Grid.RowDefinitions>
 
+        <!-- Заголовок и кнопка "Назад" -->
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <!-- Делаем колонку растягиваемой для имени -->
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" 
+                    Content="← Назад" 
+                    Command="{Binding GoBackCommand}" 
+                    Style="{StaticResource MahApps.Styles.Button.Flat}" 
+                    Margin="0,0,10,5"/>
+            <TextBlock Grid.Column="1" 
+                       Text="{Binding OtherUserName}" 
+                       Style="{StaticResource HeaderText}" 
+                       VerticalAlignment="Center"/>
+        </Grid>
+
         <!-- Список сообщений -->
-        <ScrollViewer Grid.Row="0" x:Name="MessageScrollViewer">
+        <ScrollViewer Grid.Row="1" x:Name="MessageScrollViewer">
             <ItemsControl ItemsSource="{Binding Messages}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
@@ -36,7 +58,7 @@
         </ScrollViewer>
 
         <!-- Поле ввода и кнопка отправки -->
-        <Grid Grid.Row="1" Margin="0,10,0,0">
+        <Grid Grid.Row="2" Margin="0,10,0,0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>

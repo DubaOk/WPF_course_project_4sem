@@ -45,20 +45,20 @@
                                     <TextBlock Text="{Binding Status, FallbackValue='Не определено'}" Style="{StaticResource BodyText}"/>
                                 </StackPanel>
                                 <Button Grid.Column="1"
-                                        Content="Принять"
-                                        Command="{Binding DataContext.AcceptBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-                                        CommandParameter="{Binding Id, FallbackValue=-1}"
-                                        Style="{StaticResource PrimaryButton}"
-                                        Margin="5"
-                                        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
+        Content="Принять"
+        Command="{Binding DataContext.AcceptBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+        CommandParameter="{Binding Id, FallbackValue=-1}"
+        Style="{StaticResource PrimaryButton}"
+        Margin="5"
+        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
                                 <Button Grid.Column="2"
-                                        Content="Отклонить"
-                                        Command="{Binding DataContext.RejectBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-                                        CommandParameter="{Binding Id, FallbackValue=-1}"
-                                        Style="{StaticResource SecondaryButton}"
-                                        Margin="5"
-                                        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
-                                
+        Content="Отклонить"
+        Command="{Binding DataContext.RejectBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+        CommandParameter="{Binding Id, FallbackValue=-1}"
+        Style="{StaticResource SecondaryButton}"
+        Margin="5"
+        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
+
                             </Grid>
                         </Border>
                     </DataTemplate>

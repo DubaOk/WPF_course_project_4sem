@@ -10,7 +10,8 @@
         public string AvatarPath { get; set; } 
         public double Rating { get; set; }
         public decimal PricePerHour { get; set; }
-        
+        public bool IsVisible { get; set; }
+
 
     }
 }

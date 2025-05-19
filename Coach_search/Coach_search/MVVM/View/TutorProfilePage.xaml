@@ -107,6 +107,12 @@
                          mah:TextBoxHelper.Watermark="Введите рейтинг (0-5)"
                          IsReadOnly="True"/>
 
+                <!-- Галочка "Сделать профиль видимым" -->
+                <CheckBox Content="Сделать профиль видимым" 
+                          IsChecked="{Binding IsVisible, UpdateSourceTrigger=PropertyChanged}" 
+                          Margin="0,0,0,10" 
+                          Style="{DynamicResource MahApps.Styles.CheckBox}"/>
+
                 <Button Content="Сохранить" 
                         Command="{Binding UpdateProfileCommand}" 
                         Style="{StaticResource PrimaryButton}" 

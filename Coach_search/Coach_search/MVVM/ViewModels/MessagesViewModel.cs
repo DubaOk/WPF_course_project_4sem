@@ -8,6 +8,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using Coach_search.MVVM.View;
 
 namespace Coach_search.ViewModels
 {
@@ -16,6 +17,7 @@ namespace Coach_search.ViewModels
         private readonly DatabaseHelper _dbHelper;
         private readonly int _currentUserId;
         private readonly int _otherUserId;
+        private readonly UserType _currentUserType; // Добавляем для хранения типа пользователя
         private ObservableCollection<Message> _messages;
         private string _newMessageContent;
         private string _otherUserName;
@@ -53,6 +55,7 @@ namespace Coach_search.ViewModels
 
         public ICommand SendMessageCommand { get; }
         public ICommand SendMessageOnEnterCommand { get; }
+        public ICommand GoBackCommand { get; } // Новая команда для возврата
 
         public MessagesViewModel(int currentUserId, int otherUserId)
         {
@@ -60,14 +63,18 @@ namespace Coach_search.ViewModels
             _currentUserId = currentUserId;
             _otherUserId = otherUserId;
 
-            if (_dbHelper.GetUserById(currentUserId) == null || _dbHelper.GetUserById(otherUserId) == null)
+            var currentUser = _dbHelper.GetUserById(currentUserId);
+            if (currentUser == null || _dbHelper.GetUserById(otherUserId) == null)
             {
                 throw new ArgumentException("One or both user IDs are invalid.");
             }
 
+            _currentUserType = currentUser.UserType; // Сохраняем тип текущего пользователя
+
             Messages = new ObservableCollection<Message>();
             SendMessageCommand = new RelayCommand(SendMessage, () => !string.IsNullOrEmpty(NewMessageContent?.Trim()));
             SendMessageOnEnterCommand = new RelayCommand<KeyEventArgs>(SendMessageOnEnter);
+            GoBackCommand = new RelayCommand(GoBack); // Инициализируем команду возврата
 
             LoadOtherUserName();
             LoadMessages();
@@ -88,7 +95,7 @@ namespace Coach_search.ViewModels
             if (!hasBooking)
             {
                 System.Diagnostics.Debug.WriteLine($"No booking found between {_currentUserId} and {_otherUserId}.");
-                MessageBox.Show("Нет активных бронирований с этим пользователем.", "Информация");
+                
             }
         }
 
@@ -151,6 +158,23 @@ namespace Coach_search.ViewModels
                 SendMessage();
                 args.Handled = true;
             }
+        }
+
+        private void GoBack()
+        {
+            // Создаем новое окно выбора собеседника
+            var selectConversationWindow = new SelectConversationWindow
+            {
+                DataContext = new SelectConversationViewModel(_currentUserId, _currentUserType)
+            };
+            selectConversationWindow.Show();
+
+            // Закрываем текущее окно переписки
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var currentWindow = Application.Current.Windows.OfType<MessagesWindow>().FirstOrDefault();
+                currentWindow?.Close();
+            });
         }
 
         private void ScrollToBottom()

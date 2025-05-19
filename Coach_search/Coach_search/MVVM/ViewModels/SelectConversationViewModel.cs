@@ -3,6 +3,7 @@ using Coach_search.Models;
 using Coach_search.MVVM.View;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
+using GalaSoft.MvvmLight.Messaging; // Добавляем для работы с Messenger
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -47,6 +48,12 @@ namespace Coach_search.ViewModels
             _userType = userType;
             SelectUserCommand = new RelayCommand(SelectUser, () => SelectedUser != null);
             LoadUsers();
+
+            // Подписка на событие удаления бронирования
+            Messenger.Default.Register<NotificationMessage>(this, "BookingDeleted", message =>
+            {
+                LoadUsers(); // Перезагружаем список пользователей
+            });
         }
 
         private void LoadUsers()
@@ -98,14 +105,9 @@ namespace Coach_search.ViewModels
             }
 
             System.Diagnostics.Debug.WriteLine($"Filtered users count: {Users.Count}");
-            foreach (var user in Users.Where(u => u.UserType == UserType.Tutor))
+            foreach (var user in Users)
             {
-                var tutor = _dbHelper.GetTutorByUserId(user.Id);
-                if (tutor != null)
-                {
-                    user.AvatarPath = tutor.AvatarPath;
-                    System.Diagnostics.Debug.WriteLine($"Set avatar for user {user.Id}: {tutor.AvatarPath}");
-                }
+                System.Diagnostics.Debug.WriteLine($"User {user.Id} ({user.UserType}): AvatarPath = {user.AvatarPath}");
             }
         }
 

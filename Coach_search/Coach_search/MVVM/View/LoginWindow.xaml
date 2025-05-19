@@ -18,13 +18,13 @@
                     <TextBlock Text="Email" Style="{StaticResource BodyText}"/>
                     <TextBox Text="{Binding LoginEmail, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{StaticResource CustomTextBox}"
-                             mah:TextBoxHelper.Watermark="Введите email"
+                             mah:TextBoxHelper.Watermark="Введите email (user@example.com)"
                              Margin="0,0,0,12" Height="52"/>
                     <TextBlock Text="Пароль" Style="{StaticResource BodyText}"/>
                     <PasswordBox x:Name="LoginPasswordBox" 
                                  PasswordChanged="LoginPasswordBox_PasswordChanged" 
                                  Style="{StaticResource CustomPasswordBox}"
-                                 mah:TextBoxHelper.Watermark="Введите пароль"
+                                 mah:TextBoxHelper.Watermark="Введите пароль (мин. 6 символов)"
                                  Margin="0,0,0,16" Height="52" Password=""/>
                     <Button Command="{Binding LoginCommand}" 
                             CommandParameter="{Binding ElementName=LoginPasswordBox}" 
@@ -40,18 +40,18 @@
                     <TextBlock Text="Имя" Style="{StaticResource BodyText}"/>
                     <TextBox Text="{Binding RegisterName, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{StaticResource CustomTextBox}"
-                             mah:TextBoxHelper.Watermark="Введите ваше имя"
+                             mah:TextBoxHelper.Watermark="Введите ваше имя (мин. 2 символа)"
                              Margin="0,0,0,12"/>
                     <TextBlock Text="Email" Style="{StaticResource BodyText}"/>
                     <TextBox Text="{Binding RegisterEmail, UpdateSourceTrigger=PropertyChanged}" 
                              Style="{StaticResource CustomTextBox}"
-                             mah:TextBoxHelper.Watermark="Введите email"
+                             mah:TextBoxHelper.Watermark="Введите email (user@example.com)"
                              Margin="0,0,0,12"/>
                     <TextBlock Text="Пароль" Style="{StaticResource BodyText}"/>
                     <PasswordBox x:Name="RegisterPasswordBox" 
                                  PasswordChanged="RegisterPasswordBox_PasswordChanged" 
                                  Style="{StaticResource CustomPasswordBox}"
-                                 mah:TextBoxHelper.Watermark="Введите пароль"
+                                 mah:TextBoxHelper.Watermark="Введите пароль (мин. 6 символов, буквы + цифры)"
                                  Margin="0,0,0,12" Height="48"/>
                     <TextBlock Text="Тип пользователя" Style="{StaticResource BodyText}"/>
                     <ComboBox SelectedValue="{Binding SelectedUserType, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" 

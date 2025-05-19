@@ -86,11 +86,10 @@ namespace Coach_search.ViewModels
                 Bookings.Clear();
                 foreach (var booking in bookings)
                 {
-                    booking.TutorName = _dbHelper.GetTutorByUserId(booking.TutorId)?.Name ?? "Неизвестный репетитор";
                     booking.CanCancel = booking.Status == "Ожидает";
                     booking.CanLeaveReview = booking.Status == "Подтверждено" && !_dbHelper.HasReviewForBooking(booking.Id);
                     Bookings.Add(booking);
-                    System.Diagnostics.Debug.WriteLine($"Booking ID: {booking.Id}, Status: {booking.Status}, CanCancel: {booking.CanCancel}, CanLeaveReview: {booking.CanLeaveReview}");
+                    System.Diagnostics.Debug.WriteLine($"Booking ID: {booking.Id}, TutorName: {booking.TutorName}, Status: {booking.Status}, CanCancel: {booking.CanCancel}, CanLeaveReview: {booking.CanLeaveReview}");
                 }
 
                 var reviews = _dbHelper.GetClientReviews(userId) ?? new List<Review>();
@@ -143,8 +142,8 @@ namespace Coach_search.ViewModels
                 {
                     try
                     {
-                        _dbHelper.UpdateBookingStatus(booking.Id, "Отменено");
-                        LoadData(CurrentClient.UserId);
+                        _dbHelper.DeleteBooking(booking.Id); // Удаляем запись вместо изменения статуса
+                        Bookings.Remove(booking); // Удаляем запись из коллекции
                         MessageBox.Show("Запись успешно отменена.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)

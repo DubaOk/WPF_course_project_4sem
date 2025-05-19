@@ -8,6 +8,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
 using System.Windows;
+using GalaSoft.MvvmLight.Messaging;
 
 namespace Coach_search.ViewModels
 {
@@ -52,6 +53,17 @@ namespace Coach_search.ViewModels
             System.Diagnostics.Debug.WriteLine($"Tutor found: UserId={userId}, TutorId={_tutorId}");
             ShowBookingsCommand = new RelayCommand<DateTime>(ShowBookings);
             GenerateCalendar();
+
+            // Подписка на события изменения бронирований
+            Messenger.Default.Register<NotificationMessage>(this, "BookingUpdated", message =>
+            {
+                GenerateCalendar();
+            });
+
+            Messenger.Default.Register<NotificationMessage>(this, "BookingDeleted", message =>
+            {
+                GenerateCalendar();
+            });
         }
 
         private void GenerateCalendar()
@@ -67,6 +79,9 @@ namespace Coach_search.ViewModels
             int row = 0, col = 0;
             for (DateTime date = firstDayOfCalendar; date <= lastDayOfCalendar; date = date.AddDays(1))
             {
+                var dayBookings = bookings.Where(b => b.DateTime.Date == date.Date).ToList();
+                System.Diagnostics.Debug.WriteLine($"Processing date {date.ToShortDateString()}: Found {dayBookings.Count} bookings.");
+
                 var day = new CalendarDay
                 {
                     Day = date.Day,
@@ -74,7 +89,7 @@ namespace Coach_search.ViewModels
                     IsCurrentMonth = date.Month == _currentDate.Month,
                     Row = row,
                     Column = col,
-                    Bookings = new ObservableCollection<Booking>(bookings.Where(b => b.DateTime.Date == date.Date))
+                    Bookings = new ObservableCollection<Booking>(dayBookings)
                 };
                 System.Diagnostics.Debug.WriteLine($"Date {date.ToShortDateString()}: {day.Bookings.Count} bookings");
                 days.Add(day);
@@ -85,9 +100,12 @@ namespace Coach_search.ViewModels
                     col = 0;
                     row++;
                 }
+
+
             }
 
             CalendarDays = days;
+            System.Diagnostics.Debug.WriteLine($"Calendar regenerated with {days.Count} days.");
         }
 
         private void ShowBookings(DateTime selectedDate)

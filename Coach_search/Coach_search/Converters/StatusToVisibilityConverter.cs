@@ -11,11 +11,9 @@ namespace Coach_search.Converters
         {
             if (value is string status && parameter is string expectedStatus)
             {
-                bool isVisible = status == expectedStatus;
-                System.Diagnostics.Debug.WriteLine($"StatusToVisibilityConverter: Status={status}, Expected={expectedStatus}, IsVisible={isVisible}");
-                return isVisible ? Visibility.Visible : Visibility.Collapsed;
+                System.Diagnostics.Debug.WriteLine($"StatusToVisibilityConverter: Status={status}, Expected={expectedStatus}, Result={(status == expectedStatus)}");
+                return status == expectedStatus ? Visibility.Visible : Visibility.Collapsed;
             }
-            System.Diagnostics.Debug.WriteLine($"StatusToVisibilityConverter: Invalid input - Status={value}, Parameter={parameter}");
             return Visibility.Collapsed;
         }
 

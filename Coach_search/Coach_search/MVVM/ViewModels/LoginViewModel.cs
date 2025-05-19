@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -6,7 +7,6 @@ using Coach_search.Data;
 using Coach_search.Models;
 using Coach_search.MVVM.View;
 using BCrypt.Net;
-using Coach_search.ViewModels;
 
 namespace Coach_search.ViewModels
 {
@@ -93,9 +93,28 @@ namespace Coach_search.ViewModels
 
         private void OnLogin(object parameter)
         {
-            if (string.IsNullOrEmpty(LoginEmail) || string.IsNullOrEmpty(LoginPassword))
+            // Валидация полей
+            if (string.IsNullOrWhiteSpace(LoginEmail))
             {
-                MessageBox.Show("Пожалуйста, заполните все поля.", "Ошибка");
+                MessageBox.Show("Пожалуйста, введите email.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!IsValidEmail(LoginEmail))
+            {
+                MessageBox.Show("Пожалуйста, введите корректный email (пример: user@example.com).", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(LoginPassword))
+            {
+                MessageBox.Show("Пожалуйста, введите пароль.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (LoginPassword.Length < 6)
+            {
+                MessageBox.Show("Пароль должен содержать минимум 6 символов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -120,7 +139,7 @@ namespace Coach_search.ViewModels
 
                                 if (isBlocked)
                                 {
-                                    MessageBox.Show("Ваш аккаунт заблокирован.", "Ошибка авторизации");
+                                    MessageBox.Show("Ваш аккаунт заблокирован.", "Ошибка авторизации", MessageBoxButton.OK, MessageBoxImage.Error);
                                     return;
                                 }
 
@@ -128,14 +147,7 @@ namespace Coach_search.ViewModels
                                 {
                                     Coach_search.Models.UserType userType = Enum.Parse<Coach_search.Models.UserType>(userTypeString);
                                     MainWindow mainWindow = new MainWindow();
-                                    if (userType == Coach_search.Models.UserType.Admin)
-                                    {
-                                        mainWindow.Frame.Navigate(new MainPage(userName, userType, userId));
-                                    }
-                                    else
-                                    {
-                                        mainWindow.Frame.Navigate(new MainPage(userName, userType, userId));
-                                    }
+                                    mainWindow.Frame.Navigate(new MainPage(userName, userType, userId));
                                     mainWindow.Show();
                                     if (parameter is FrameworkElement element)
                                     {
@@ -148,12 +160,12 @@ namespace Coach_search.ViewModels
                                 }
                                 else
                                 {
-                                    MessageBox.Show("Неверный email или пароль.", "Ошибка авторизации");
+                                    MessageBox.Show("Неверный email или пароль.", "Ошибка авторизации", MessageBoxButton.OK, MessageBoxImage.Error);
                                 }
                             }
                             else
                             {
-                                MessageBox.Show("Неверный email или пароль.", "Ошибка авторизации");
+                                MessageBox.Show("Неверный email или пароль.", "Ошибка авторизации", MessageBoxButton.OK, MessageBoxImage.Error);
                             }
                         }
                     }
@@ -161,15 +173,73 @@ namespace Coach_search.ViewModels
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка авторизации: {ex.Message}", "Ошибка");
+                MessageBox.Show($"Ошибка авторизации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
         private void OnRegister(object parameter)
         {
-            if (string.IsNullOrEmpty(RegisterName) || string.IsNullOrEmpty(RegisterEmail) || string.IsNullOrEmpty(RegisterPassword) || string.IsNullOrEmpty(SelectedUserType))
+            // Валидация полей
+            if (string.IsNullOrWhiteSpace(RegisterName))
             {
-                MessageBox.Show("Пожалуйста, заполните все поля.", "Ошибка");
+                MessageBox.Show("Пожалуйста, введите имя.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (RegisterName.Length < 2)
+            {
+                MessageBox.Show("Имя должно содержать минимум 2 символа.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(RegisterEmail))
+            {
+                MessageBox.Show("Пожалуйста, введите email.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!IsValidEmail(RegisterEmail))
+            {
+                MessageBox.Show("Пожалуйста, введите корректный email (пример: user@example.com).", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(RegisterPassword))
+            {
+                MessageBox.Show("Пожалуйста, введите пароль.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (!IsValidPassword(RegisterPassword))
+            {
+                MessageBox.Show("Пароль должен содержать минимум 6 символов, включая хотя бы одну букву и одну цифру.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(SelectedUserType))
+            {
+                MessageBox.Show("Пожалуйста, выберите тип пользователя.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (SelectedUserType != "Клиент" && SelectedUserType != "Репетитор")
+            {
+                MessageBox.Show("Тип пользователя должен быть 'Клиент' или 'Репетитор'.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // Проверка существующего email
+            try
+            {
+                if (_dbHelper.EmailExists(RegisterEmail))
+                {
+                    MessageBox.Show("Этот email уже зарегистрирован. Пожалуйста, используйте другой email.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка проверки email: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
@@ -206,21 +276,37 @@ namespace Coach_search.ViewModels
                     _dbHelper.AddClient(client);
                 }
 
-                MessageBox.Show("Регистрация успешна! Теперь вы можете войти.", "Успех");
+                MessageBox.Show("Регистрация успешна! Теперь вы можете войти.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                 ClearRegistrationFields();
                 if (parameter is TabControl tabControl)
                 {
                     tabControl.SelectedIndex = 0;
                 }
             }
-            catch (System.Data.SqlClient.SqlException ex) when (ex.Number == 2627)
-            {
-                MessageBox.Show("Этот email уже зарегистрирован.", "Ошибка");
-            }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка регистрации: {ex.Message}", "Ошибка");
+                MessageBox.Show($"Ошибка регистрации: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
+        }
+
+        private bool IsValidEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+                return false;
+
+            // Простая регулярка для проверки формата email
+            string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            return Regex.IsMatch(email, emailPattern);
+        }
+
+        private bool IsValidPassword(string password)
+        {
+            if (string.IsNullOrWhiteSpace(password) || password.Length < 6)
+                return false;
+
+            // Пароль должен содержать хотя бы одну букву и одну цифру
+            string passwordPattern = @"^(?=.*[A-Za-z])(?=.*\d).+$";
+            return Regex.IsMatch(password, passwordPattern);
         }
 
         private void ClearRegistrationFields()

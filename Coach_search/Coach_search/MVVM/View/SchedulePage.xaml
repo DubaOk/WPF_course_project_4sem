@@ -110,15 +110,15 @@
                                            Foreground="{Binding IsCurrentMonth, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter='#333|#999'}"/>
                                 <!-- Кнопка для дней с бронированиями -->
                                 <Button Grid.Row="0"
-                                        Content="Записи"
-                                        Command="{Binding DataContext.ShowBookingsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
-                                        CommandParameter="{Binding Date}"
-                                        Style="{StaticResource PrimaryButton}"
-                                        Visibility="{Binding Bookings.Count, Converter={StaticResource CountToVisibilityConverter}}"
-                                        Width="24" Height="24"
-                                        HorizontalAlignment="Right" VerticalAlignment="Top"
-                                        Margin="0,5,5,0"
-                                        mah:ControlsHelper.CornerRadius="12"/>     
+        Content="Записи"
+        Command="{Binding DataContext.ShowBookingsCommand, RelativeSource={RelativeSource AncestorType=Page}}"
+        CommandParameter="{Binding Date}"
+        Style="{StaticResource PrimaryButton}"
+        Visibility="{Binding Bookings.Count, Converter={StaticResource CountToVisibilityConverter}}"
+        Width="24" Height="24"
+        HorizontalAlignment="Right" VerticalAlignment="Top"
+        Margin="0,5,5,0"
+        mah:ControlsHelper.CornerRadius="12"/>    
                                 <ItemsControl Grid.Row="1" ItemsSource="{Binding Bookings}">
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>

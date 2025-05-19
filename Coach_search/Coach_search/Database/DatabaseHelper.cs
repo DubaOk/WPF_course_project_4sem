@@ -29,20 +29,37 @@ namespace Coach_search.Data
             }
         }
 
+        public bool EmailExists(string email)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "SELECT COUNT(*) FROM Users WHERE Email = @Email";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Email", email);
+                    int count = (int)command.ExecuteScalar();
+                    return count > 0;
+                }
+            }
+        }
+
         public void AddTutor(Tutor tutor)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO Tutors (UserId, Name, Subject, Description, Rating, PricePerHour) VALUES (@UserId, @Name, @Subject, @Description, @Rating, @PricePerHour)";
+                string query = "INSERT INTO Tutors (UserId, Name, Subject, Description, AvatarPath, Rating, PricePerHour, IsVisible) VALUES (@UserId, @Name, @Subject, @Description, @AvatarPath, @Rating, @PricePerHour, @IsVisible)";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", tutor.UserId);
                     command.Parameters.AddWithValue("@Name", tutor.Name);
                     command.Parameters.AddWithValue("@Subject", (object)tutor.Subject ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Description", (object)tutor.Description ?? DBNull.Value);
+                    command.Parameters.AddWithValue("@AvatarPath", (object)tutor.AvatarPath ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Rating", tutor.Rating);
                     command.Parameters.AddWithValue("@PricePerHour", tutor.PricePerHour);
+                    command.Parameters.AddWithValue("@IsVisible", tutor.IsVisible);
                     command.ExecuteNonQuery();
                 }
             }
@@ -70,7 +87,7 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT Id, UserId, Name, Subject, Description, AvatarPath, Rating, PricePerHour FROM Tutors";
+                string query = "SELECT Id, UserId, Name, Subject, Description, AvatarPath, Rating, PricePerHour, IsVisible FROM Tutors WHERE IsVisible = 1";
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -86,7 +103,8 @@ namespace Coach_search.Data
                                 Description = reader.IsDBNull(4) ? null : reader.GetString(4),
                                 AvatarPath = reader.IsDBNull(5) ? null : reader.GetString(5),
                                 Rating = reader.IsDBNull(6) ? 0 : reader.GetDouble(6),
-                                PricePerHour = reader.IsDBNull(7) ? 0 : reader.GetDecimal(7)
+                                PricePerHour = reader.IsDBNull(7) ? 0 : reader.GetDecimal(7),
+                                IsVisible = reader.GetBoolean(8)
                             });
                         }
                     }
@@ -100,7 +118,7 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT Id, UserId, Name, Subject, Description, AvatarPath, Rating, PricePerHour FROM Tutors WHERE UserId = @UserId";
+                string query = "SELECT Id, UserId, Name, Subject, Description, AvatarPath, Rating, PricePerHour, IsVisible FROM Tutors WHERE UserId = @UserId";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", userId);
@@ -117,7 +135,8 @@ namespace Coach_search.Data
                                 Description = reader.IsDBNull(4) ? null : reader.GetString(4),
                                 AvatarPath = reader.IsDBNull(5) ? null : reader.GetString(5),
                                 Rating = reader.IsDBNull(6) ? 0 : reader.GetDouble(6),
-                                PricePerHour = reader.IsDBNull(7) ? 0 : reader.GetDecimal(7)
+                                PricePerHour = reader.IsDBNull(7) ? 0 : reader.GetDecimal(7),
+                                IsVisible = reader.GetBoolean(8)
                             };
                         }
                     }
@@ -131,11 +150,12 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = @"UPDATE Tutors 
-                                SET Name = @Name, Subject = @Subject, Description = @Description, 
-                                    AvatarPath = @AvatarPath, Rating = @Rating, PricePerHour = @PricePerHour 
-                                WHERE Id = @Id";
-                using (var command = new SqlCommand(query, connection))
+                string tutorQuery = @"UPDATE Tutors 
+                                     SET Name = @Name, Subject = @Subject, Description = @Description, 
+                                         AvatarPath = @AvatarPath, Rating = @Rating, PricePerHour = @PricePerHour, 
+                                         IsVisible = @IsVisible 
+                                     WHERE Id = @Id";
+                using (var command = new SqlCommand(tutorQuery, connection))
                 {
                     command.Parameters.AddWithValue("@Id", tutor.Id);
                     command.Parameters.AddWithValue("@Name", (object)tutor.Name ?? DBNull.Value);
@@ -144,6 +164,15 @@ namespace Coach_search.Data
                     command.Parameters.AddWithValue("@AvatarPath", (object)tutor.AvatarPath ?? DBNull.Value);
                     command.Parameters.AddWithValue("@Rating", tutor.Rating);
                     command.Parameters.AddWithValue("@PricePerHour", tutor.PricePerHour);
+                    command.Parameters.AddWithValue("@IsVisible", tutor.IsVisible);
+                    command.ExecuteNonQuery();
+                }
+
+                string userQuery = "UPDATE Users SET Name = @Name WHERE Id = @UserId";
+                using (var command = new SqlCommand(userQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", tutor.UserId);
+                    command.Parameters.AddWithValue("@Name", (object)tutor.Name ?? DBNull.Value);
                     command.ExecuteNonQuery();
                 }
             }
@@ -155,10 +184,11 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = @"SELECT b.Id, b.TutorId, t.Name, b.DateTime, b.Status 
-                        FROM Bookings b
-                        JOIN Tutors t ON b.TutorId = t.Id
-                        WHERE b.ClientId = @ClientId";
+                string query = @"
+            SELECT b.Id, b.TutorId, COALESCE(t.Name, 'Репетитор не найден') AS TutorName, b.DateTime, b.Status 
+            FROM Bookings b
+            LEFT JOIN Tutors t ON b.TutorId = t.Id
+            WHERE b.ClientId = @ClientId";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@ClientId", clientId);
@@ -170,7 +200,7 @@ namespace Coach_search.Data
                             {
                                 Id = reader.GetInt32(0),
                                 TutorId = reader.GetInt32(1),
-                                TutorName = reader.GetString(2),
+                                TutorName = reader.GetString(2), // COALESCE гарантирует, что имя всегда будет
                                 DateTime = reader.GetDateTime(3),
                                 Status = reader.GetString(4)
                             });
@@ -274,17 +304,43 @@ namespace Coach_search.Data
             }
         }
 
+        public void DeleteBooking(int bookingId)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "DELETE FROM Bookings WHERE Id = @Id";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", bookingId);
+                    int rowsAffected = command.ExecuteNonQuery();
+                    if (rowsAffected == 0)
+                    {
+                        throw new Exception("Запись не найдена или уже удалена.");
+                    }
+                }
+            }
+        }
+
         public void UpdateClient(Client client)
         {
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "UPDATE Clients SET Name = @Name, AvatarPath = @AvatarPath WHERE UserId = @UserId";
-                using (var command = new SqlCommand(query, connection))
+                string clientQuery = "UPDATE Clients SET Name = @Name, AvatarPath = @AvatarPath WHERE UserId = @UserId";
+                using (var command = new SqlCommand(clientQuery, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", client.UserId);
                     command.Parameters.AddWithValue("@Name", client.Name);
                     command.Parameters.AddWithValue("@AvatarPath", (object)client.AvatarPath ?? DBNull.Value);
+                    command.ExecuteNonQuery();
+                }
+
+                string userQuery = "UPDATE Users SET Name = @Name WHERE Id = @UserId";
+                using (var command = new SqlCommand(userQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", client.UserId);
+                    command.Parameters.AddWithValue("@Name", client.Name);
                     command.ExecuteNonQuery();
                 }
             }
@@ -484,7 +540,13 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT Id, Name, Email, UserType, IsBlocked FROM Users";
+                string query = @"
+                    SELECT u.Id, u.Name, u.Email, u.UserType, u.IsBlocked,
+                        CASE 
+                            WHEN u.UserType = 'Tutor' THEN (SELECT AvatarPath FROM Tutors WHERE UserId = u.Id)
+                            ELSE (SELECT AvatarPath FROM Clients WHERE UserId = u.Id)
+                        END AS AvatarPath
+                    FROM Users u";
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -497,7 +559,8 @@ namespace Coach_search.Data
                                 Name = reader.IsDBNull(1) ? string.Empty : reader.GetString(1),
                                 Email = reader.IsDBNull(2) ? string.Empty : reader.GetString(2),
                                 UserType = Enum.Parse<Coach_search.Models.UserType>(reader.GetString(3)),
-                                IsBlocked = reader.GetBoolean(4)
+                                IsBlocked = reader.GetBoolean(4),
+                                AvatarPath = reader.IsDBNull(5) ? null : reader.GetString(5)
                             });
                         }
                     }
@@ -550,7 +613,8 @@ namespace Coach_search.Data
                                 UserId = user.Id,
                                 Name = user.Name,
                                 Rating = 0,
-                                PricePerHour = 0
+                                PricePerHour = 0,
+                                IsVisible = false
                             };
                             AddTutor(tutor);
                         }

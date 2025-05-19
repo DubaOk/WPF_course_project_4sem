@@ -186,7 +186,7 @@ namespace Coach_search.ViewModels
                 "2000+"
             };
 
-            ShowTutorDetailsCommand = new RelayCommand(ShowTutorDetails, _ => SelectedTutor != null);
+            ShowTutorDetailsCommand = new RelayCommand(ShowTutorDetails);
             ShowTutorProfileCommand = new RelayCommand(ShowTutorProfile, _ => UserType == UserType.Tutor);
             NavigateCommand = new RelayCommand(Navigate);
             SearchCommand = new RelayCommand(_ => FilterTutors());
@@ -199,16 +199,16 @@ namespace Coach_search.ViewModels
 
         private void ShowTutorDetails(object parameter)
         {
-            if (SelectedTutor != null)
+            if (parameter is Tutor tutor)
             {
-                System.Diagnostics.Debug.WriteLine($"Opening TutorDetailsWindow for tutor: {SelectedTutor.Name}");
-                var viewModel = new TutorDetailsViewModel(SelectedTutor);
+                System.Diagnostics.Debug.WriteLine($"Opening TutorDetailsWindow for tutor: {tutor.Name}");
+                var viewModel = new TutorDetailsViewModel(tutor);
                 var window = new TutorDetailsWindow(viewModel);
                 window.ShowDialog();
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("ShowTutorDetails failed: no tutor selected");
+                System.Diagnostics.Debug.WriteLine("ShowTutorDetails failed: invalid parameter");
                 MessageBox.Show("Ошибка: Репетитор не выбран.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }

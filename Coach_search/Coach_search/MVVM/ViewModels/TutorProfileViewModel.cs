@@ -22,6 +22,8 @@ namespace Coach_search.ViewModels
         private double _rating;
         private decimal _pricePerHour;
         private List<string> _subjects;
+        private bool _isVisible;
+        private bool _canMakeVisible;
 
         public string Name
         {
@@ -30,6 +32,7 @@ namespace Coach_search.ViewModels
             {
                 _name = value;
                 OnPropertyChanged();
+                UpdateCanMakeVisible();
             }
         }
 
@@ -40,6 +43,7 @@ namespace Coach_search.ViewModels
             {
                 _subject = value;
                 OnPropertyChanged();
+                UpdateCanMakeVisible();
             }
         }
 
@@ -50,6 +54,7 @@ namespace Coach_search.ViewModels
             {
                 _description = value;
                 OnPropertyChanged();
+                UpdateCanMakeVisible();
             }
         }
 
@@ -80,6 +85,7 @@ namespace Coach_search.ViewModels
             {
                 _pricePerHour = value;
                 OnPropertyChanged();
+                UpdateCanMakeVisible();
             }
         }
 
@@ -89,6 +95,35 @@ namespace Coach_search.ViewModels
             set
             {
                 _subjects = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsVisible
+        {
+            get => _isVisible;
+            set
+            {
+                if (_canMakeVisible) // Разрешаем изменение только если все поля заполнены
+                {
+                    _isVisible = value;
+                    OnPropertyChanged();
+                }
+                else if (value) // Если пытаются включить видимость, но нельзя
+                {
+                    MessageBox.Show("Заполните все обязательные поля (ФИО, предмет, описание, стоимость), чтобы сделать профиль видимым.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    _isVisible = false;
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public bool CanMakeVisible
+        {
+            get => _canMakeVisible;
+            set
+            {
+                _canMakeVisible = value;
                 OnPropertyChanged();
             }
         }
@@ -110,6 +145,7 @@ namespace Coach_search.ViewModels
                 AvatarPath = _tutor.AvatarPath;
                 Rating = _tutor.Rating;
                 PricePerHour = _tutor.PricePerHour;
+                IsVisible = _tutor.IsVisible;
             }
             else
             {
@@ -119,6 +155,7 @@ namespace Coach_search.ViewModels
                 AvatarPath = string.Empty;
                 Rating = 0;
                 PricePerHour = 0;
+                IsVisible = false;
             }
 
             Subjects = new List<string>
@@ -131,6 +168,8 @@ namespace Coach_search.ViewModels
                 "История",
                 "Биология"
             };
+
+            UpdateCanMakeVisible(); // Инициализируем состояние видимости
 
             UpdateProfileCommand = new RelayCommand(UpdateProfile, CanUpdateProfile);
             UploadAvatarCommand = new RelayCommand(UploadAvatar);
@@ -152,6 +191,7 @@ namespace Coach_search.ViewModels
                 _tutor.AvatarPath = AvatarPath;
                 _tutor.Rating = Rating;
                 _tutor.PricePerHour = PricePerHour;
+                _tutor.IsVisible = IsVisible;
 
                 _dbHelper.UpdateTutor(_tutor);
                 MessageBox.Show("Профиль успешно обновлен!", "Успех");
@@ -166,6 +206,18 @@ namespace Coach_search.ViewModels
         private bool CanUpdateProfile(object parameter)
         {
             return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Subject);
+        }
+
+        private void UpdateCanMakeVisible()
+        {
+            CanMakeVisible = !string.IsNullOrWhiteSpace(Name) &&
+                             !string.IsNullOrWhiteSpace(Subject) &&
+                             !string.IsNullOrWhiteSpace(Description) &&
+                             PricePerHour > 0;
+            if (!CanMakeVisible && IsVisible)
+            {
+                IsVisible = false; // Отключаем видимость, если поля стали незаполненными
+            }
         }
 
         private void UploadAvatar(object parameter)
