@@ -6,6 +6,9 @@
         public string Name { get; set; }
         public string Email { get; set; }
         public List<Booking> Bookings { get; set; } = new();
+
+        public string AvatarPath { get; set; }
+
     }
 
     public class Booking

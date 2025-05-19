@@ -7,6 +7,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
 using GalaSoft.MvvmLight.Command;
+using System.Windows;
 
 namespace Coach_search.ViewModels
 {
@@ -91,12 +92,23 @@ namespace Coach_search.ViewModels
 
         private void ShowBookings(DateTime selectedDate)
         {
-            var bookings = _dbHelper.GetBookingsForTutor(_tutorId, selectedDate.Month, selectedDate.Year)
-                .Where(b => b.DateTime.Date == selectedDate.Date)
-                .ToList();
-            var bookingDetailsViewModel = new BookingDetailsViewModel(bookings, selectedDate, _tutorId);
-            var bookingDetailsWindow = new BookingDetailsWindow(bookingDetailsViewModel);
-            bookingDetailsWindow.ShowDialog();
+            try
+            {
+                System.Diagnostics.Debug.WriteLine($"Showing bookings for date: {selectedDate:dd/MM/yyyy}");
+                var bookings = _dbHelper.GetBookingsForTutor(_tutorId, selectedDate.Month, selectedDate.Year)
+                    .Where(b => b.DateTime.Date == selectedDate.Date)
+                    .ToList();
+                System.Diagnostics.Debug.WriteLine($"Found {bookings.Count} bookings for {selectedDate:dd/MM/yyyy}");
+
+                var bookingDetailsViewModel = new BookingDetailsViewModel(bookings, selectedDate, _tutorId);
+                var bookingDetailsWindow = new BookingDetailsWindow(bookingDetailsViewModel);
+                bookingDetailsWindow.ShowDialog();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in ShowBookings: {ex.Message}\nInner Exception: {ex.InnerException?.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при открытии записей: {ex.Message}\nПодробности: {ex.InnerException?.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         public ICommand GoBackCommand => new RelayCommand(_ =>

@@ -11,5 +11,10 @@ namespace Coach_search.ViewModels
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
+
+        public virtual void Cleanup()
+        {
+            // Базовая реализация пуста, может быть переопределена в наследниках
+        }
     }
 }

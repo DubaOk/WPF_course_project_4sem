@@ -1,5 +1,6 @@
 ﻿using Coach_search.Data;
 using Coach_search.Models;
+using Coach_search.MVVM.View;
 using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using System;
@@ -19,14 +20,35 @@ namespace Coach_search.ViewModels
 
         public BookingDetailsViewModel(System.Collections.Generic.List<Booking> bookings, DateTime selectedDate, int tutorId)
         {
-            _dbHelper = new DatabaseHelper();
-            _bookings = new ObservableCollection<Booking>(bookings);
-            _selectedDate = selectedDate;
-            _tutorId = tutorId;
-            //CloseCommand = new RelayCommand(Close);
-            OpenChatCommand = new RelayCommand<int>(OpenChat);
-            AcceptBookingCommand = new RelayCommand<int>(AcceptBooking);
-            RejectBookingCommand = new RelayCommand<int>(RejectBooking);
+            try
+            {
+                _dbHelper = new DatabaseHelper();
+                _bookings = new ObservableCollection<Booking>(bookings ?? new System.Collections.Generic.List<Booking>());
+                _selectedDate = selectedDate;
+                _tutorId = tutorId;
+
+                if (_bookings == null)
+                {
+                    System.Diagnostics.Debug.WriteLine("Warning: Bookings collection is null, initializing empty collection.");
+                    _bookings = new ObservableCollection<Booking>();
+                }
+
+                System.Diagnostics.Debug.WriteLine($"BookingDetailsViewModel initialized with {_bookings.Count} bookings for tutorId {_tutorId} on {_selectedDate:dd/MM/yyyy}");
+                foreach (var booking in _bookings)
+                {
+                    System.Diagnostics.Debug.WriteLine($"Booking: Id={booking.Id}, ClientId={booking.ClientId}, DateTime={booking.DateTime}, Status={booking.Status}");
+                }
+
+                OpenChatCommand = new RelayCommand<int>(OpenChat, CanOpenChat);
+                AcceptBookingCommand = new RelayCommand<int>(AcceptBooking);
+                RejectBookingCommand = new RelayCommand<int>(RejectBooking);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error initializing BookingDetailsViewModel: {ex.Message}\nInner Exception: {ex.InnerException?.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при инициализации окна: {ex.Message}\nПодробности: {ex.InnerException?.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                _bookings = new ObservableCollection<Booking>(); // Инициализация пустой коллекции в случае ошибки
+            }
         }
 
         public ObservableCollection<Booking> Bookings
@@ -39,21 +61,72 @@ namespace Coach_search.ViewModels
             get => _selectedDate;
         }
 
-        public ICommand CloseCommand { get; }
         public ICommand OpenChatCommand { get; }
         public ICommand AcceptBookingCommand { get; }
         public ICommand RejectBookingCommand { get; }
 
-        private void Close()
+        private bool CanOpenChat(int clientId)
         {
-            Application.Current.Windows.OfType<MahApps.Metro.Controls.MetroWindow>()
-                .FirstOrDefault(w => w.DataContext == this)?.Close();
+            if (clientId <= 0)
+            {
+                System.Diagnostics.Debug.WriteLine($"CanOpenChat failed: Invalid ClientId {clientId}");
+                return false;
+            }
+
+            try
+            {
+                var user = _dbHelper.GetUserById(clientId);
+                if (user == null)
+                {
+                    System.Diagnostics.Debug.WriteLine($"CanOpenChat failed: User with ClientId {clientId} not found in database.");
+                    return false;
+                }
+
+                bool hasValidBooking = _bookings.Any(b =>
+                    b.ClientId == clientId &&
+                    b.TutorId == _tutorId &&
+                    (b.Status == "Ожидает" || b.Status == "Подтверждено"));
+
+                if (!hasValidBooking)
+                {
+                    System.Diagnostics.Debug.WriteLine($"CanOpenChat failed: No bookings with status 'Ожидает' or 'Подтверждено' found for ClientId {clientId} and TutorId {_tutorId}.");
+                    return false;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"CanOpenChat succeeded for ClientId {clientId} and TutorId {_tutorId}.");
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"CanOpenChat error: {ex.Message}\nInner Exception: {ex.InnerException?.Message}\nStackTrace: {ex.StackTrace}");
+                return false;
+            }
         }
 
         private void OpenChat(int clientId)
         {
-            // Заглушка для переписки
-            MessageBox.Show($"Функционал переписки пока не реализован. ClientId: {clientId}", "Переписка");
+            try
+            {
+                if (clientId <= 0)
+                {
+                    System.Diagnostics.Debug.WriteLine($"OpenChat aborted: Invalid ClientId {clientId}");
+                    MessageBox.Show("Невозможно открыть чат: некорректный идентификатор клиента.", "Ошибка");
+                    return;
+                }
+
+                System.Diagnostics.Debug.WriteLine($"Opening chat between tutorId: {_tutorId} and clientId: {clientId}");
+                var viewModel = new MessagesViewModel(_tutorId, clientId);
+                var window = new MessagesWindow
+                {
+                    DataContext = viewModel
+                };
+                window.Show();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error opening chat: {ex.Message}\nInner Exception: {ex.InnerException?.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при открытии переписки: {ex.Message}\nПодробности: {ex.InnerException?.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
         }
 
         private void AcceptBooking(int bookingId)
@@ -65,12 +138,14 @@ namespace Coach_search.ViewModels
                 if (booking != null)
                 {
                     booking.Status = "Подтверждено";
-                    OnPropertyChanged(nameof(Bookings));
+                    OnPropertyChanged(nameof(booking.Status)); // Обновляем только изменённый элемент
+                    OnPropertyChanged("Bookings"); // Уведомляем об изменении коллекции
                 }
                 MessageBox.Show("Бронирование подтверждено!", "Успех");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error accepting booking: {ex.Message}\nStackTrace: {ex.StackTrace}");
                 MessageBox.Show($"Ошибка при подтверждении бронирования: {ex.Message}", "Ошибка");
             }
         }
@@ -84,12 +159,14 @@ namespace Coach_search.ViewModels
                 if (booking != null)
                 {
                     booking.Status = "Отклонено";
-                    OnPropertyChanged(nameof(Bookings));
+                    OnPropertyChanged(nameof(booking.Status)); // Обновляем только изменённый элемент
+                    OnPropertyChanged("Bookings"); // Уведомляем об изменении коллекции
                 }
                 MessageBox.Show("Бронирование отклонено!", "Успех");
             }
             catch (Exception ex)
             {
+                System.Diagnostics.Debug.WriteLine($"Error rejecting booking: {ex.Message}\nStackTrace: {ex.StackTrace}");
                 MessageBox.Show($"Ошибка при отклонении бронирования: {ex.Message}", "Ошибка");
             }
         }

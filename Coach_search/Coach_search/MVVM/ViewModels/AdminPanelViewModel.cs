@@ -1,10 +1,13 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Navigation;
 using Coach_search.Data;
 using Coach_search.Models;
 using Coach_search.MVVM.Models;
+using Coach_search.MVVM.View;
 using Coach_search.ViewModels;
 
 namespace Coach_search.MVVM.ViewModels
@@ -35,6 +38,7 @@ namespace Coach_search.MVVM.ViewModels
             {
                 _selectedUser = value;
                 OnPropertyChanged();
+                System.Diagnostics.Debug.WriteLine($"SelectedUser changed to: {(_selectedUser?.Name ?? "null")}");
             }
         }
 
@@ -55,20 +59,25 @@ namespace Coach_search.MVVM.ViewModels
             {
                 _selectedReview = value;
                 OnPropertyChanged();
+                System.Diagnostics.Debug.WriteLine($"SelectedReview changed to: {(_selectedReview?.TutorName ?? "null")}");
             }
         }
 
+        public ICommand NavigateBackCommand { get; }
         public ICommand BlockUserCommand { get; }
         public ICommand UpdateUserCommand { get; }
         public ICommand DeleteReviewCommand { get; }
+        public ICommand UpdateReviewCommand { get; }
 
         public AdminPanelViewModel(int adminId)
         {
             _adminId = adminId;
             _dbHelper = new DatabaseHelper();
+            NavigateBackCommand = new RelayCommand(NavigateBack);
             BlockUserCommand = new RelayCommand(_ => BlockUser(), _ => SelectedUser != null);
             UpdateUserCommand = new RelayCommand(_ => UpdateUser(), _ => SelectedUser != null);
             DeleteReviewCommand = new RelayCommand(_ => DeleteReview(), _ => SelectedReview != null);
+            UpdateReviewCommand = new RelayCommand(_ => UpdateReview(), _ => SelectedReview != null);
 
             LoadData();
         }
@@ -84,6 +93,15 @@ namespace Coach_search.MVVM.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка");
+            }
+        }
+
+        private void NavigateBack(object parameter)
+        {
+            if (parameter is NavigationService navigationService)
+            {
+                System.Diagnostics.Debug.WriteLine("Navigating back to MainPage");
+                navigationService.Navigate(new MainPage("admin", UserType.Admin, _adminId));
             }
         }
 
@@ -167,6 +185,32 @@ namespace Coach_search.MVVM.ViewModels
                 {
                     MessageBox.Show($"Ошибка удаления отзыва: {ex.Message}", "Ошибка");
                 }
+            }
+        }
+
+        private void UpdateReview()
+        {
+            if (SelectedReview == null)
+            {
+                MessageBox.Show("Выберите отзыв.", "Ошибка");
+                return;
+            }
+
+            if (string.IsNullOrWhiteSpace(SelectedReview.Text) || SelectedReview.Rating < 1 || SelectedReview.Rating > 5)
+            {
+                MessageBox.Show("Текст отзыва не может быть пустым, рейтинг должен быть от 1 до 5.", "Ошибка");
+                return;
+            }
+
+            try
+            {
+                _dbHelper.UpdateReview(SelectedReview);
+                MessageBox.Show("Отзыв обновлён!", "Успех");
+                LoadData(); // Перезагрузка данных для обновления рейтинга
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Ошибка обновления отзыва: {ex.Message}", "Ошибка");
             }
         }
     }

@@ -4,6 +4,7 @@ using Microsoft.Data.SqlClient;
 using Coach_search.Models;
 using System.Windows.Controls;
 using Coach_search.MVVM.Models;
+using Coach_search.ViewModels;
 
 namespace Coach_search.Data
 {
@@ -52,11 +53,12 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "INSERT INTO Clients (UserId, Name) VALUES (@UserId, @Name)";
+                string query = "INSERT INTO Clients (UserId, Name, AvatarPath) VALUES (@UserId, @Name, @AvatarPath)";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", client.UserId);
                     command.Parameters.AddWithValue("@Name", client.Name);
+                    command.Parameters.AddWithValue("@AvatarPath", (object)client.AvatarPath ?? DBNull.Value);
                     command.ExecuteNonQuery();
                 }
             }
@@ -277,11 +279,27 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "UPDATE Clients SET Name = @Name WHERE UserId = @UserId";
+                string query = "UPDATE Clients SET Name = @Name, AvatarPath = @AvatarPath WHERE UserId = @UserId";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", client.UserId);
                     command.Parameters.AddWithValue("@Name", client.Name);
+                    command.Parameters.AddWithValue("@AvatarPath", (object)client.AvatarPath ?? DBNull.Value);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void UpdateClientAvatar(int userId, string avatarPath)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "UPDATE Clients SET AvatarPath = @AvatarPath WHERE UserId = @UserId";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    command.Parameters.AddWithValue("@AvatarPath", (object)avatarPath ?? DBNull.Value);
                     command.ExecuteNonQuery();
                 }
             }
@@ -292,7 +310,7 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = @"SELECT c.UserId, c.Name, u.Email 
+                string query = @"SELECT c.UserId, c.Name, u.Email, c.AvatarPath 
                        FROM Clients c
                        JOIN Users u ON c.UserId = u.Id
                        WHERE c.UserId = @UserId";
@@ -307,7 +325,8 @@ namespace Coach_search.Data
                             {
                                 UserId = reader.GetInt32(0),
                                 Name = reader.GetString(1),
-                                Email = reader.GetString(2)
+                                Email = reader.GetString(2),
+                                AvatarPath = reader.IsDBNull(3) ? null : reader.GetString(3)
                             };
                         }
                     }
@@ -549,7 +568,8 @@ namespace Coach_search.Data
                             var client = new Client
                             {
                                 UserId = user.Id,
-                                Name = user.Name
+                                Name = user.Name,
+                                AvatarPath = null
                             };
                             AddClient(client);
                         }
@@ -619,6 +639,174 @@ namespace Coach_search.Data
                     command.Parameters.AddWithValue("@TutorId", tutorId);
                     command.ExecuteNonQuery();
                 }
+            }
+        }
+
+        public void UpdateReview(Review review)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string updateQuery = @"UPDATE Reviews 
+                                      SET Text = @Text, Rating = @Rating 
+                                      WHERE Id = @Id";
+                using (var command = new SqlCommand(updateQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@Id", review.Id);
+                    command.Parameters.AddWithValue("@Text", review.Text);
+                    command.Parameters.AddWithValue("@Rating", review.Rating);
+                    command.ExecuteNonQuery();
+                }
+
+                string updateRatingQuery = @"UPDATE Tutors 
+                                           SET Rating = (SELECT AVG(CAST(Rating AS FLOAT)) FROM Reviews WHERE TutorId = @TutorId)
+                                           WHERE Id = @TutorId";
+                using (var command = new SqlCommand(updateRatingQuery, connection))
+                {
+                    command.Parameters.AddWithValue("@TutorId", review.TutorId);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public void AddMessage(int senderId, int receiverId, string content, DateTime sentAt)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "INSERT INTO Messages (SenderId, ReceiverId, Content, SentAt) VALUES (@SenderId, @ReceiverId, @Content, @SentAt)";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@SenderId", senderId);
+                    command.Parameters.AddWithValue("@ReceiverId", receiverId);
+                    command.Parameters.AddWithValue("@Content", content);
+                    command.Parameters.AddWithValue("@SentAt", sentAt);
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
+
+        public List<Message> GetMessagesBetween(int userId1, int userId2)
+        {
+            var messages = new List<Message>();
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = @"
+                    SELECT Id, SenderId, ReceiverId, Content, SentAt 
+                    FROM Messages 
+                    WHERE (SenderId = @UserId1 AND ReceiverId = @UserId2) 
+                       OR (SenderId = @UserId2 AND ReceiverId = @UserId1) 
+                    ORDER BY SentAt ASC";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId1", userId1);
+                    command.Parameters.AddWithValue("@UserId2", userId2);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            messages.Add(new Message
+                            {
+                                Id = reader.GetInt32(0),
+                                SenderId = reader.GetInt32(1),
+                                ReceiverId = reader.GetInt32(2),
+                                Content = reader.GetString(3),
+                                SentAt = reader.GetDateTime(4)
+                            });
+                        }
+                    }
+                }
+            }
+            return messages;
+        }
+
+        public List<int> GetMessageContacts(int userId)
+        {
+            var contacts = new List<int>();
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = @"
+                    SELECT DISTINCT SenderId
+                    FROM Messages
+                    WHERE ReceiverId = @UserId
+                    UNION
+                    SELECT DISTINCT ReceiverId
+                    FROM Messages
+                    WHERE SenderId = @UserId";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            int contactId = reader.GetInt32(0);
+                            if (contactId != userId)
+                            {
+                                contacts.Add(contactId);
+                            }
+                        }
+                    }
+                }
+            }
+            return contacts;
+        }
+
+        public User GetUserById(int userId)
+        {
+            using (var connection = new SqlConnection(ConnectionString))
+            {
+                connection.Open();
+                string query = "SELECT Id, Name, Email, Password, UserType, IsBlocked FROM Users WHERE Id = @UserId";
+                using (var command = new SqlCommand(query, connection))
+                {
+                    command.Parameters.AddWithValue("@UserId", userId);
+                    using (var reader = command.ExecuteReader())
+                    {
+                        if (reader.Read())
+                        {
+                            return new User
+                            {
+                                Id = reader.GetInt32(0),
+                                Name = reader.GetString(1),
+                                Email = reader.GetString(2),
+                                Password = reader.GetString(3),
+                                UserType = (UserType)Enum.Parse(typeof(UserType), reader.GetString(4)),
+                                IsBlocked = reader.GetBoolean(5)
+                            };
+                        }
+                    }
+                }
+            }
+            return null;
+        }
+
+        public bool HasBookingBetween(int user1Id, int user2Id)
+        {
+            using var connection = new SqlConnection(ConnectionString);
+            try
+            {
+                connection.Open();
+                var command = new SqlCommand(
+                    @"SELECT COUNT(*) 
+                      FROM Bookings b
+                      JOIN Tutors t ON b.TutorId = t.Id
+                      JOIN Clients c ON b.ClientId = c.UserId
+                      WHERE (t.UserId = @User1Id AND c.UserId = @User2Id) 
+                         OR (t.UserId = @User2Id AND c.UserId = @User1Id)",
+                    connection);
+                command.Parameters.AddWithValue("@User1Id", user1Id);
+                command.Parameters.AddWithValue("@User2Id", user2Id);
+                int count = (int)command.ExecuteScalar();
+                System.Diagnostics.Debug.WriteLine($"HasBookingBetween: User1Id={user1Id}, User2Id={user2Id}, Count={count}");
+                return count > 0;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"Error in HasBookingBetween: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                return false;
             }
         }
     }

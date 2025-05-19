@@ -3,11 +3,16 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
                  xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+                 xmlns:converters="clr-namespace:Coach_search.Converters"
                  Title="Занятия за день" 
                  Height="700" 
                  Width="600"
                  WindowStartupLocation="CenterScreen"
                  GlowBrush="{DynamicResource MahApps.Brushes.Accent}">
+    <mah:MetroWindow.Resources>
+        <converters:ChatVisibilityConverter x:Key="ChatVisibilityConverter"/>
+        <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
+    </mah:MetroWindow.Resources>
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -35,34 +40,30 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="{Binding ClientName}" Style="{StaticResource SubHeaderText}"/>
-                                    <TextBlock Text="{Binding DateTime, StringFormat='Время: {0:HH:mm}'}" Style="{StaticResource BodyText}"/>
-                                    <TextBlock Text="{Binding Status}" Style="{StaticResource BodyText}"/>
+                                    <TextBlock Text="{Binding ClientName, FallbackValue='Неизвестный клиент'}" Style="{StaticResource SubHeaderText}"/>
+                                    <TextBlock Text="{Binding DateTime, StringFormat='Время: {0:HH:mm}', FallbackValue='Не указано'}" Style="{StaticResource BodyText}"/>
+                                    <TextBlock Text="{Binding Status, FallbackValue='Не определено'}" Style="{StaticResource BodyText}"/>
                                 </StackPanel>
                                 <Button Grid.Column="1"
                                         Content="Принять"
                                         Command="{Binding DataContext.AcceptBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-                                        CommandParameter="{Binding Id}"
+                                        CommandParameter="{Binding Id, FallbackValue=-1}"
                                         Style="{StaticResource PrimaryButton}"
-                                        Margin="5"/>
+                                        Margin="5"
+                                        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
                                 <Button Grid.Column="2"
                                         Content="Отклонить"
                                         Command="{Binding DataContext.RejectBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-                                        CommandParameter="{Binding Id}"
+                                        CommandParameter="{Binding Id, FallbackValue=-1}"
                                         Style="{StaticResource SecondaryButton}"
-                                        Margin="5"/>
-                                <Button Grid.Column="3"
-                                        Content="Переписка"
-                                        Command="{Binding DataContext.OpenChatCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-                                        CommandParameter="{Binding ClientId}"
-                                        Style="{StaticResource SecondaryButton}"
-                                        Margin="5"/>
+                                        Margin="5"
+                                        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
+                                
                             </Grid>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
-
     </Grid>
 </mah:MetroWindow>

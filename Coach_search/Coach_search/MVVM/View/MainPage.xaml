@@ -15,7 +15,7 @@
             <StackPanel>
                 <TextBlock Text="TutorSearch" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,24"/>
                 <Button Content="Главная" Command="{Binding NavigateCommand}" CommandParameter="MainPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
-                <Button Content="Расписание" Command="{Binding NavigateCommand}" CommandParameter="SchedulePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
+                <Button Content="Расписание" Command="{Binding NavigateCommand}" CommandParameter="SchedulePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <Button Content="Сообщения" Command="{Binding NavigateCommand}" CommandParameter="MessagesPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
                 <Button Content="Личный кабинет" Command="{Binding NavigateCommand}" CommandParameter="SettingsPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
                 <Button Content="Личный кабинет" Command="{Binding NavigateCommand}" CommandParameter="ClientProfilePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsClient, Converter={StaticResource BooleanToVisibilityConverter}}"/>

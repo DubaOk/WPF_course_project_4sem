@@ -6,7 +6,8 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 using Microsoft.Data.SqlClient;
-using System.Windows.Navigation;
+using Microsoft.Win32;
+using System;
 
 namespace Coach_search.ViewModels
 {
@@ -31,6 +32,7 @@ namespace Coach_search.ViewModels
         public ICommand GoBackCommand { get; }
         public ICommand AddReviewCommand { get; }
         public ICommand AddReviewForBookingCommand { get; }
+        public ICommand UploadAvatarCommand { get; }
 
         public ClientProfileViewModel(int userId)
         {
@@ -38,7 +40,8 @@ namespace Coach_search.ViewModels
             SaveProfileCommand = new RelayCommand(_ => SaveProfile());
             CancelBookingCommand = new RelayCommand(CancelBooking);
             AddReviewCommand = new RelayCommand(_ => AddReview());
-            AddReviewForBookingCommand = new RelayCommand(AddReviewForBooking); // Новая команда
+            AddReviewForBookingCommand = new RelayCommand(AddReviewForBooking);
+            UploadAvatarCommand = new RelayCommand(UploadAvatar);
 
             if (TestDatabaseConnection())
             {
@@ -71,7 +74,7 @@ namespace Coach_search.ViewModels
         {
             try
             {
-                CurrentClient = _dbHelper.GetClient(userId);
+                CurrentClient = _dbHelper.GetClient(userId) ?? new Client { UserId = userId, AvatarPath = "pack://application:,,,/MVVM/View/images/icons/defaultavatar.png" };
                 if (CurrentClient == null)
                 {
                     MessageBox.Show("Клиент не найден. Возможно, пользователь не существует.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
@@ -84,10 +87,9 @@ namespace Coach_search.ViewModels
                 foreach (var booking in bookings)
                 {
                     booking.TutorName = _dbHelper.GetTutorByUserId(booking.TutorId)?.Name ?? "Неизвестный репетитор";
-                    booking.CanCancel = booking.Status == "Ожидает"; // Заменяем "Pending" на "Ожидает"
-                    booking.CanLeaveReview = booking.Status == "Подтверждено" && !_dbHelper.HasReviewForBooking(booking.Id); // Заменяем "Confirmed" на "Подтверждено"
+                    booking.CanCancel = booking.Status == "Ожидает";
+                    booking.CanLeaveReview = booking.Status == "Подтверждено" && !_dbHelper.HasReviewForBooking(booking.Id);
                     Bookings.Add(booking);
-                    // Логирование для отладки
                     System.Diagnostics.Debug.WriteLine($"Booking ID: {booking.Id}, Status: {booking.Status}, CanCancel: {booking.CanCancel}, CanLeaveReview: {booking.CanLeaveReview}");
                 }
 
@@ -209,7 +211,6 @@ namespace Coach_search.ViewModels
             }
             else
             {
-                // Попытка получить NavigationService из текущей страницы
                 var page = Application.Current.Windows.OfType<Window>().FirstOrDefault(w => w.IsActive) as MainWindow;
                 if (page != null && page.Frame != null)
                 {
@@ -232,7 +233,7 @@ namespace Coach_search.ViewModels
             {
                 try
                 {
-                    var dialog = new ReviewDialog(booking.TutorName); // Передаём имя репетитора
+                    var dialog = new ReviewDialog(booking.TutorName);
                     if (dialog.ShowDialog() == true)
                     {
                         var review = new Review
@@ -266,6 +267,20 @@ namespace Coach_search.ViewModels
                 {
                     MessageBox.Show($"Ошибка добавления отзыва: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
                 }
+            }
+        }
+
+        private void UploadAvatar()
+        {
+            var openFileDialog = new OpenFileDialog
+            {
+                Filter = "Image files (*.png;*.jpg)|*.png;*.jpg|All files (*.*)|*.*"
+            };
+            if (openFileDialog.ShowDialog() == true)
+            {
+                CurrentClient.AvatarPath = openFileDialog.FileName; // Сохраняем временный путь
+                _dbHelper.UpdateClientAvatar(CurrentClient.UserId, CurrentClient.AvatarPath);
+                MessageBox.Show("Аватар обновлен!", "Успех");
             }
         }
     }

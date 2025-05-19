@@ -142,7 +142,6 @@ namespace Coach_search.ViewModels
             _userName = userName;
             _userType = userType;
             _userId = userId;
-            
 
             _allTutors = new ObservableCollection<Tutor>(_dbHelper.GetTutors());
             Tutors = new ObservableCollection<Tutor>(_allTutors);
@@ -226,6 +225,7 @@ namespace Coach_search.ViewModels
                 System.Diagnostics.Debug.WriteLine("ShowTutorProfile failed: invalid frame");
             }
         }
+
         private void Navigate(object parameter)
         {
             System.Diagnostics.Debug.WriteLine($"Navigate called with parameter: {parameter ?? "null"}");
@@ -276,8 +276,24 @@ namespace Coach_search.ViewModels
                     }
                     break;
                 case "MessagesPage":
-                    System.Diagnostics.Debug.WriteLine("MessagesPage navigation not implemented.");
-                    MessageBox.Show("Страница сообщений пока не реализована.", "Информация", MessageBoxButton.OK, MessageBoxImage.Information);
+                    System.Diagnostics.Debug.WriteLine($"Opening SelectConversationWindow for userId: {_userId}");
+                    var selectConversationWindow = new SelectConversationWindow
+                    {
+                        DataContext = new SelectConversationViewModel(_userId, _userType)
+                    };
+                    if (selectConversationWindow.ShowDialog() == true)
+                    {
+                        var viewModel = selectConversationWindow.DataContext as SelectConversationViewModel;
+                        if (viewModel?.SelectedUser != null)
+                        {
+                            System.Diagnostics.Debug.WriteLine($"Opening MessagesWindow for conversation between userId: {_userId} and otherUserId: {viewModel.SelectedUser.Id}");
+                            var messagesWindow = new MessagesWindow
+                            {
+                                DataContext = new MessagesViewModel(_userId, viewModel.SelectedUser.Id)
+                            };
+                            messagesWindow.Show();
+                        }
+                    }
                     break;
                 case "SettingsPage":
                     if (UserType == UserType.Tutor)

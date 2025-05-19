@@ -4,7 +4,8 @@
       xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       Title="Админ-панель"
-      Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
+      Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+      HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -12,40 +13,70 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- Заголовок -->
-        <TextBlock Grid.Row="0" Text="Админ-панель" FontSize="24" FontWeight="Bold" Margin="0,0,0,20" Foreground="#333"/>
+        <!-- Заголовок и кнопка назад -->
+        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="0,0,0,20">
+            <Button Content="Назад" Command="{Binding NavigateBackCommand}" CommandParameter="{Binding RelativeSource={RelativeSource AncestorType=Page}, Path=NavigationService}" 
+                    Style="{StaticResource MahApps.Styles.Button}" Margin="0,0,10,0" Width="80"/>
+            <TextBlock Text="Админ-панель" FontSize="24" FontWeight="Bold" Margin="0,0,0,0" Foreground="#333"/>
+        </StackPanel>
 
         <!-- Управление пользователями -->
         <Border Grid.Row="1" CornerRadius="8" Background="{DynamicResource MahApps.Brushes.Control.Background}" Padding="20" Margin="0,0,0,20">
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Список пользователей -->
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="Управление пользователями" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" Foreground="#333"/>
-                    <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" Height="200" Margin="0,0,0,10">
+                <!-- Список пользователей с прокруткой -->
+                <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalScrollBarVisibility="Auto">
+                    <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" Margin="0,0,0,10">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <Border Background="{TemplateBinding Background}" Padding="5">
+                                                <ContentPresenter/>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsSelected" Value="True">
+                                                    <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent}"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="{Binding Name}" Margin="5"/>
-                                    <TextBlock Text="{Binding Email}" Margin="5"/>
-                                    <TextBlock Text="{Binding UserType}" Margin="5"/>
-                                    <TextBlock Text="{Binding IsBlocked, StringFormat='Статус: {0:Заблокирован|Активен}'}" Margin="5"/>
-                                </StackPanel>
+                                <Border Width="400">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Name}" Margin="5"/>
+                                        <TextBlock Text="{Binding Email}" Margin="5"/>
+                                        <TextBlock Text="{Binding UserType}" Margin="5"/>
+                                        <TextBlock Text="{Binding IsBlocked, StringFormat='Заблокирован: {0}'}" Margin="5"/>
+                                    </StackPanel>
+                                </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-                    <StackPanel Orientation="Horizontal">
-                        <Button Content="Блокировать/Разблокировать" Command="{Binding BlockUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}"/>
-                        <Button Content="Сохранить изменения" Command="{Binding UpdateUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}"/>
-                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Кнопки управления -->
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
+                    <Button Content="Блокировать/Разблокировать" Command="{Binding BlockUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}" Width="150"/>
+                    <Button Content="Сохранить изменения" Command="{Binding UpdateUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}" Width="150"/>
                 </StackPanel>
 
                 <!-- Редактирование пользователя -->
-                <StackPanel Grid.Column="1" Margin="20,0,0,0" Width="300">
+                <StackPanel Grid.Row="0" Grid.Column="1" Margin="20,0,0,0" Width="300">
                     <TextBlock Text="Редактировать пользователя" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
                     <TextBlock Text="Имя" Margin="0,0,0,5"/>
                     <TextBox Text="{Binding SelectedUser.Name, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.Watermark="Введите имя" Margin="0,0,0,10"/>
@@ -57,6 +88,7 @@
                         <ComboBoxItem Content="Tutor"/>
                         <ComboBoxItem Content="Admin"/>
                     </ComboBox>
+                    <CheckBox IsChecked="{Binding SelectedUser.IsBlocked, UpdateSourceTrigger=PropertyChanged}" Content="Заблокирован" Margin="0,0,0,10"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -65,19 +97,44 @@
         <Border Grid.Row="2" CornerRadius="8" Background="{DynamicResource MahApps.Brushes.Control.Background}" Padding="20">
             <StackPanel>
                 <TextBlock Text="Модерация отзывов" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" Foreground="#333"/>
-                <ListBox ItemsSource="{Binding Reviews}" SelectedItem="{Binding SelectedReview}" Height="200" Margin="0,0,0,10">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel>
-                                <TextBlock Text="{Binding TutorName, StringFormat='Репетитор: {0}'}" FontWeight="Bold"/>
-                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
-                                <TextBlock Text="{Binding Rating, StringFormat='Рейтинг: {0} ★'}"/>
-                                <TextBlock Text="{Binding CreatedAt, StringFormat='Создан: {0:dd MMMM yyyy HH:mm}'}"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <Button Content="Удалить отзыв" Command="{Binding DeleteReviewCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="250">
+                    <ListBox ItemsSource="{Binding Reviews}" SelectedItem="{Binding SelectedReview}">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,5">
+                                    <StackPanel>
+                                        <TextBlock Text="{Binding TutorName, StringFormat='Репетитор: {0}'}" FontWeight="Bold" Margin="0,0,0,5"/>
+                                        <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="0,0,0,5" AcceptsReturn="True"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
+                                            <TextBlock Text="Рейтинг: "/>
+                                            <TextBox Text="{Binding Rating, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="5,0,0,0" TextAlignment="Center"/>
+                                            <TextBlock Text="★"/>
+                                        </StackPanel>
+                                        <TextBlock Text="{Binding CreatedAt, StringFormat='Создан: {0:dd MMMM yyyy HH:mm}'}"/>
+                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                            <Button Content="Сохранить изменения" Command="{Binding DataContext.UpdateReviewCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                                    Margin="5,0" Style="{StaticResource MahApps.Styles.Button}" Width="120"/>
+                                            <Button Content="Удалить отзыв" Command="{Binding DataContext.DeleteReviewCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                                    Margin="5,0" Style="{StaticResource MahApps.Styles.Button}" Width="120"/>
+                                        </StackPanel>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </ScrollViewer>
             </StackPanel>
         </Border>
     </Grid>
