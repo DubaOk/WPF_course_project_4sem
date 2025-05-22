@@ -9,6 +9,7 @@
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
+        <converters:TextTruncateConverter x:Key="TextTruncateConverter" />
 
         <Style x:Key="MenuButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
             <Setter Property="Height" Value="40"/>
@@ -192,10 +193,10 @@
                                             <TextBlock Text="{Binding Rating, StringFormat=★ {0:F1}}" 
                                                      FontSize="15"
                                                      Foreground="#FFC107"/>
-                                            <TextBlock Text="{Binding Description}" 
+                                            <TextBlock Text="{Binding Description, Converter={StaticResource TextTruncateConverter}}" 
                                                      FontSize="14"
                                                      Foreground="#666"
-                                                     TextTrimming="CharacterEllipsis" 
+                                                     TextWrapping="Wrap"
                                                      MaxHeight="50"/>
                                         </StackPanel>
 

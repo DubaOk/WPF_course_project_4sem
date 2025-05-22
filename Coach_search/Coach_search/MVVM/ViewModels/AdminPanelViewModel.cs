@@ -10,6 +10,7 @@ using Coach_search.MVVM.Models;
 using Coach_search.MVVM.View;
 using Coach_search.ViewModels;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Coach_search.MVVM.ViewModels
 {
@@ -108,7 +109,14 @@ namespace Coach_search.MVVM.ViewModels
         {
             _adminId = adminId;
             _dbHelper = new DatabaseHelper();
-            NavigateBackCommand = new RelayCommand(NavigateBack);
+            NavigateBackCommand = new RelayCommand(parameter =>
+            {
+                if (parameter is NavigationService navigationService)
+                {
+                    navigationService.GoBack();
+                }
+            });
+
             BlockUserCommand = new RelayCommand(_ => BlockUser(), _ => SelectedUser != null);
             UpdateUserCommand = new RelayCommand(_ => UpdateUser(), _ => SelectedUser != null);
             DeleteReviewCommand = new RelayCommand(_ => DeleteReview(), _ => SelectedReview != null);
@@ -128,15 +136,6 @@ namespace Coach_search.MVVM.ViewModels
             catch (Exception ex)
             {
                 MessageBox.Show($"Ошибка загрузки данных: {ex.Message}", "Ошибка");
-            }
-        }
-
-        private void NavigateBack(object parameter)
-        {
-            if (parameter is NavigationService navigationService)
-            {
-                System.Diagnostics.Debug.WriteLine("Navigating back to MainPage");
-                navigationService.Navigate(new MainPage("admin", UserType.Admin, _adminId));
             }
         }
 
@@ -176,34 +175,57 @@ namespace Coach_search.MVVM.ViewModels
             }
         }
 
+        private bool ValidateUser(User user)
+        {
+            if (string.IsNullOrWhiteSpace(user.Name))
+            {
+                MessageBox.Show("Имя пользователя не может быть пустым.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (user.Name.Length > 20)
+            {
+                MessageBox.Show("Имя пользователя не может быть длиннее 20 символов.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            if (string.IsNullOrWhiteSpace(user.Email))
+            {
+                MessageBox.Show("Email не может быть пустым.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\.[a-zA-Z]{2,6}$";
+            if (!Regex.IsMatch(user.Email, emailPattern))
+            {
+                MessageBox.Show("Введите корректный email адрес.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return false;
+            }
+
+            return true;
+        }
+
         private void UpdateUser()
         {
             if (SelectedUser == null)
             {
-                MessageBox.Show("Выберите пользователя.", "Ошибка");
+                MessageBox.Show("Пользователь не выбран.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(SelectedUser.Name) || string.IsNullOrWhiteSpace(SelectedUser.Email))
+            if (!ValidateUser(SelectedUser))
             {
-                MessageBox.Show("Имя и email не могут быть пустыми.", "Ошибка");
-                return;
-            }
-
-            if (SelectedUser.Id == _adminId && SelectedUser.UserType != Coach_search.Models.UserType.Admin)
-            {
-                MessageBox.Show("Нельзя изменить свой тип пользователя.", "Ошибка");
                 return;
             }
 
             try
             {
                 _dbHelper.UpdateUser(SelectedUser);
-                MessageBox.Show("Данные пользователя обновлены!", "Успех");
+                MessageBox.Show("Данные пользователя успешно обновлены.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка обновления данных: {ex.Message}", "Ошибка");
+                MessageBox.Show($"Ошибка при обновлении данных пользователя: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 

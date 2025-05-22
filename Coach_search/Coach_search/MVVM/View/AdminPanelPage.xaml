@@ -435,13 +435,31 @@
                                         </Grid>
 
                                         <!-- Текст отзыва -->
-                                        <TextBox Grid.Row="1"
-                                                Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
-                                                Style="{StaticResource MahApps.Styles.TextBox}"
-                                                TextWrapping="Wrap" 
-                                                AcceptsReturn="True"
-                                                Height="80"
-                                                Margin="0,10"/>
+                                        <Grid Grid.Row="1" Margin="0,10">
+                                            <Grid.RowDefinitions>
+                                                <RowDefinition Height="*"/>
+                                                <RowDefinition Height="Auto"/>
+                                            </Grid.RowDefinitions>
+                                            
+                                            <TextBox Grid.Row="0"
+                                                    Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Style="{StaticResource MahApps.Styles.TextBox}"
+                                                    TextWrapping="Wrap" 
+                                                    AcceptsReturn="True"
+                                                    Height="80"
+                                                    MaxLength="100"
+                                                    mah:TextBoxHelper.Watermark="Введите текст отзыва (максимум 100 символов)"
+                                                    
+                                                    x:Name="ReviewTextBox"/>
+                                                    
+                                            <TextBlock Grid.Row="1"
+                                                      x:Name="CharacterCounterTextBlock"
+                                                      Text="Осталось символов: 100"
+                                                      FontSize="12"
+                                                      Foreground="#666"
+                                                      HorizontalAlignment="Right"
+                                                      Margin="0,5,0,0"/>
+                                        </Grid>
 
                                         <!-- Рейтинг -->
                                         <StackPanel Grid.Row="2" 
