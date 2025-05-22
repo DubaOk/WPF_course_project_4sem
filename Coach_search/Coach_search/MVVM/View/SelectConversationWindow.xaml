@@ -17,23 +17,77 @@
 
         <TextBlock Grid.Row="0" Text="Выберите собеседника" Style="{StaticResource HeaderText}" Margin="0,0,0,10"/>
 
-        <ListBox Grid.Row="1" ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" Style="{StaticResource ListBoxStyle}">
+        <!-- Сообщение об отсутствии диалогов -->
+        <StackPanel Grid.Row="1" 
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center">
+
+            <TextBlock Text="Нет доступных собеседников для переписки" 
+                     FontSize="16" 
+                     Foreground="#666"
+                     TextAlignment="Center"
+                     TextWrapping="Wrap"
+                     Visibility="{Binding Users.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=0}"/>
+        </StackPanel>
+
+        <ListBox Grid.Row="1" 
+                 ItemsSource="{Binding Users}" 
+                 SelectedItem="{Binding SelectedUser}" 
+                 Style="{StaticResource ListBoxStyle}"
+                 Visibility="{Binding Users.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=1}">
             <ListBox.ItemTemplate>
                 <DataTemplate>
                     <Border Style="{StaticResource CardStyle}" Margin="0,5">
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="40" Height="40" Margin="0,0,10,0">
-                                <Ellipse.Fill>
-                                    <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=W:\Labs_sem4\course_project\Coach_search\Coach_search\MVVM\View\images\icons\defaultavatar.png}"/>
-                                </Ellipse.Fill>
-                            </Ellipse>
-                            <TextBlock Text="{Binding Name}" VerticalAlignment="Center" Style="{StaticResource SubHeaderText}"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Аватар -->
+                            <Border Width="40" Height="40" 
+                                    CornerRadius="20" 
+                                    Margin="0,0,10,0">
+                                <Border.Background>
+                                    <ImageBrush ImageSource="{Binding AvatarPath, TargetNullValue=/MVVM/View/images/icons/defaultavatar.png, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                                </Border.Background>
+                            </Border>
+
+                            <!-- Информация о пользователе -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Name}" 
+                                         FontSize="14" 
+                                         FontWeight="SemiBold"
+                                         Foreground="#333"/>
+                                <StackPanel Orientation="Horizontal" 
+                                          Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding UserType, Converter={StaticResource UserTypeConverter}}" 
+                                             FontSize="12" 
+                                             Foreground="#666"/>
+                                    <TextBlock Text=" • " 
+                                             FontSize="12" 
+                                             Foreground="#666"
+                                             Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    <TextBlock Text="Заблокирован" 
+                                             FontSize="12" 
+                                             FontWeight="SemiBold"
+                                             Foreground="#EF5350"
+                                             Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </ListBox.ItemTemplate>
         </ListBox>
 
-        <Button Grid.Row="2" Content="Выбрать" Command="{Binding SelectUserCommand}" Style="{StaticResource PrimaryButton}" Margin="0,10,0,0" Width="120" Height="40"/>
+        <Button Grid.Row="2" 
+                Content="Выбрать" 
+                Command="{Binding SelectUserCommand}" 
+                Style="{StaticResource PrimaryButton}" 
+                Margin="0,10,0,0" 
+                Width="120" 
+                Height="40"
+                Visibility="{Binding Users.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=1}"/>
     </Grid>
 </mah:MetroWindow>

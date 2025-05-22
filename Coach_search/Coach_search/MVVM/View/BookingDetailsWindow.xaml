@@ -12,6 +12,7 @@
     <mah:MetroWindow.Resources>
         <converters:ChatVisibilityConverter x:Key="ChatVisibilityConverter"/>
         <converters:StatusToVisibilityConverter x:Key="StatusToVisibilityConverter"/>
+        <converters:BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
     </mah:MetroWindow.Resources>
     <Grid Margin="20">
         <Grid.RowDefinitions>
@@ -42,23 +43,34 @@
                                 <StackPanel Grid.Column="0">
                                     <TextBlock Text="{Binding ClientName, FallbackValue='Неизвестный клиент'}" Style="{StaticResource SubHeaderText}"/>
                                     <TextBlock Text="{Binding DateTime, StringFormat='Время: {0:HH:mm}', FallbackValue='Не указано'}" Style="{StaticResource BodyText}"/>
-                                    <TextBlock Text="{Binding Status, FallbackValue='Не определено'}" Style="{StaticResource BodyText}"/>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Status, FallbackValue='Не определено'}" Style="{StaticResource BodyText}"/>
+                                        <TextBlock Text=" • " 
+                                                 Foreground="#666"
+                                                 Style="{StaticResource BodyText}"
+                                                 Visibility="{Binding IsClientBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                        <TextBlock Text="Заблокирован" 
+                                                 Foreground="#EF5350"
+                                                 FontWeight="SemiBold"
+                                                 Style="{StaticResource BodyText}"
+                                                 Visibility="{Binding IsClientBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                    </StackPanel>
                                 </StackPanel>
                                 <Button Grid.Column="1"
-        Content="Принять"
-        Command="{Binding DataContext.AcceptBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-        CommandParameter="{Binding Id, FallbackValue=-1}"
-        Style="{StaticResource PrimaryButton}"
-        Margin="5"
-        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
+                                        Content="Принять"
+                                        Command="{Binding DataContext.AcceptBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+                                        CommandParameter="{Binding Id, FallbackValue=-1}"
+                                        Style="{StaticResource PrimaryButton}"
+                                        Margin="5"
+                                        IsEnabled="{Binding IsClientBlocked, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"
+                                        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
                                 <Button Grid.Column="2"
-        Content="Отклонить"
-        Command="{Binding DataContext.RejectBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
-        CommandParameter="{Binding Id, FallbackValue=-1}"
-        Style="{StaticResource SecondaryButton}"
-        Margin="5"
-        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
-
+                                        Content="Отклонить"
+                                        Command="{Binding DataContext.RejectBookingCommand, RelativeSource={RelativeSource AncestorType=mah:MetroWindow}}"
+                                        CommandParameter="{Binding Id, FallbackValue=-1}"
+                                        Style="{StaticResource SecondaryButton}"
+                                        Margin="5"
+                                        Visibility="{Binding Status, Converter={StaticResource StatusToVisibilityConverter}, ConverterParameter=Ожидает}"/>
                             </Grid>
                         </Border>
                     </DataTemplate>

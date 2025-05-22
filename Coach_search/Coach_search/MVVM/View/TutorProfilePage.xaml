@@ -50,7 +50,7 @@
             <StackPanel Grid.Column="0" Margin="0,0,20,0" HorizontalAlignment="Center">
                 <Ellipse Width="150" Height="150" Margin="0,0,0,10">
                     <Ellipse.Fill>
-                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=W:\Labs_sem4\course_project\Coach_search\Coach_search\MVVM\View\images\icons\defaultavatar.png}"/>
+                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
                     </Ellipse.Fill>
                 </Ellipse>
                 <Button Content="Загрузить аватарку" 
@@ -90,7 +90,7 @@
                          Style="{DynamicResource MahApps.Styles.TextBox}"
                          mah:TextBoxHelper.Watermark="Расскажите о себе"/>
 
-                <TextBlock Text="Стоимость за час (₽)" 
+                <TextBlock Text="Стоимость за час (BYN)" 
                            Margin="0,0,0,5" 
                            Style="{DynamicResource MahApps.Styles.TextBlock}"/>
                 <TextBox Text="{Binding PricePerHour, UpdateSourceTrigger=PropertyChanged}" 

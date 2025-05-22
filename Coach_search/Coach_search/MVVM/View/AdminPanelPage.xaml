@@ -34,73 +34,466 @@
 
                 <!-- Список пользователей с прокруткой -->
                 <ScrollViewer Grid.Row="0" Grid.Column="0" VerticalScrollBarVisibility="Auto">
-                    <ListBox ItemsSource="{Binding Users}" SelectedItem="{Binding SelectedUser}" Margin="0,0,0,10">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <!-- Первая колонка -->
+                        <ListBox Grid.Column="0"
+                                ItemsSource="{Binding FirstColumnUsers}" 
+                                SelectedItem="{Binding SelectedUser}"
+                                Style="{StaticResource ListBoxStyle}"
+                                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                Margin="0,0,5,0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardStyle}" 
+                                            Margin="0,5"
+                                            Width="Auto"
+                                            Background="{Binding IsBlocked, Converter={StaticResource BoolToBackgroundConverter}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Аватар пользователя с индикатором блокировки -->
+                                            <Grid Grid.Column="0">
+                                                <Ellipse Width="40" Height="40" Margin="0,0,10,0">
+                                                    <Ellipse.Fill>
+                                                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <materialDesign:PackIcon Kind="Lock" 
+                                                                       Width="16" 
+                                                                       Height="16"
+                                                                       Background="White"
+                                                                       Foreground="Red"
+                                                                       VerticalAlignment="Bottom"
+                                                                       HorizontalAlignment="Right"
+                                                                       Margin="0,0,10,0"
+                                                                       Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </Grid>
+
+                                            <!-- Информация о пользователе -->
+                                            <StackPanel Grid.Column="1" Margin="5,0">
+                                                <TextBlock Text="{Binding Name}" 
+                                                           FontSize="14" 
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="#333"/>
+                                                <TextBlock Text="{Binding Email}" 
+                                                           FontSize="12" 
+                                                           Foreground="#666"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <Border Background="#E3F2FD" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2">
+                                                        <TextBlock Text="{Binding UserType}" 
+                                                                   FontSize="11" 
+                                                                   Foreground="#1976D2"/>
+                                                    </Border>
+                                                    <Border Background="#FFEBEE" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2"
+                                                            Margin="5,0,0,0"
+                                                            Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock Text="Заблокирован" 
+                                                                   FontSize="11" 
+                                                                   Foreground="#D32F2F"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <!-- Индикатор выбора -->
+                                            <materialDesign:PackIcon Grid.Column="2" 
+                                                                   Kind="ChevronRight" 
+                                                                   Width="24" 
+                                                                   Height="24"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="#666"/>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
                                 <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                                <Setter Property="Template">
-                                    <Setter.Value>
-                                        <ControlTemplate TargetType="ListBoxItem">
-                                            <Border Background="{TemplateBinding Background}" Padding="5">
-                                                <ContentPresenter/>
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
+                        </ListBox>
+
+                        <!-- Вторая колонка -->
+                        <ListBox Grid.Column="1"
+                                ItemsSource="{Binding SecondColumnUsers}" 
+                                SelectedItem="{Binding SelectedUser}"
+                                Style="{StaticResource ListBoxStyle}"
+                                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                Margin="5,0">
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource CardStyle}" 
+                                            Margin="0,5"
+                                            Width="Auto"
+                                            Background="{Binding IsBlocked, Converter={StaticResource BoolToBackgroundConverter}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Аватар пользователя с индикатором блокировки -->
+                                            <Grid Grid.Column="0">
+                                                <Ellipse Width="40" Height="40" Margin="0,0,10,0">
+                                                    <Ellipse.Fill>
+                                                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <materialDesign:PackIcon Kind="Lock" 
+                                                                       Width="16" 
+                                                                       Height="16"
+                                                                       Background="White"
+                                                                       Foreground="Red"
+                                                                       VerticalAlignment="Bottom"
+                                                                       HorizontalAlignment="Right"
+                                                                       Margin="0,0,10,0"
+                                                                       Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </Grid>
+
+                                            <!-- Информация о пользователе -->
+                                            <StackPanel Grid.Column="1" Margin="5,0">
+                                                <TextBlock Text="{Binding Name}" 
+                                                           FontSize="14" 
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="#333"/>
+                                                <TextBlock Text="{Binding Email}" 
+                                                           FontSize="12" 
+                                                           Foreground="#666"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <Border Background="#E3F2FD" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2">
+                                                        <TextBlock Text="{Binding UserType}" 
+                                                                   FontSize="11" 
+                                                                   Foreground="#1976D2"/>
+                                                    </Border>
+                                                    <Border Background="#FFEBEE" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2"
+                                                            Margin="5,0,0,0"
+                                                            Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock Text="Заблокирован" 
+                                                                   FontSize="11" 
+                                                                   Foreground="#D32F2F"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </StackPanel>
+
+                                            <!-- Индикатор выбора -->
+                                            <materialDesign:PackIcon Grid.Column="2" 
+                                                                   Kind="ChevronRight" 
+                                                                   Width="24" 
+                                                                   Height="24"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="#666"/>
+                                        </Grid>
                                             </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsSelected" Value="True">
-                                                    <Setter Property="Background" Value="{DynamicResource MahApps.Brushes.Accent}"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Setter.Value>
-                                </Setter>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Margin" Value="0"/>
                             </Style>
                         </ListBox.ItemContainerStyle>
+                        </ListBox>
+
+                        <!-- Третья колонка -->
+                        <ListBox Grid.Column="2"
+                                ItemsSource="{Binding ThirdColumnUsers}" 
+                                SelectedItem="{Binding SelectedUser}"
+                                Style="{StaticResource ListBoxStyle}"
+                                ScrollViewer.VerticalScrollBarVisibility="Disabled"
+                                Margin="5,0,0,0">
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Width="400">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="{Binding Name}" Margin="5"/>
-                                        <TextBlock Text="{Binding Email}" Margin="5"/>
-                                        <TextBlock Text="{Binding UserType}" Margin="5"/>
-                                        <TextBlock Text="{Binding IsBlocked, StringFormat='Заблокирован: {0}'}" Margin="5"/>
+                                    <Border Style="{StaticResource CardStyle}" 
+                                            Margin="0,5"
+                                            Width="Auto"
+                                            Background="{Binding IsBlocked, Converter={StaticResource BoolToBackgroundConverter}}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Аватар пользователя с индикатором блокировки -->
+                                            <Grid Grid.Column="0">
+                                                <Ellipse Width="40" Height="40" Margin="0,0,10,0">
+                                                    <Ellipse.Fill>
+                                                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                                                    </Ellipse.Fill>
+                                                </Ellipse>
+                                                <materialDesign:PackIcon Kind="Lock" 
+                                                                       Width="16" 
+                                                                       Height="16"
+                                                                       Background="White"
+                                                                       Foreground="Red"
+                                                                       VerticalAlignment="Bottom"
+                                                                       HorizontalAlignment="Right"
+                                                                       Margin="0,0,10,0"
+                                                                       Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                                            </Grid>
+
+                                            <!-- Информация о пользователе -->
+                                            <StackPanel Grid.Column="1" Margin="5,0">
+                                                <TextBlock Text="{Binding Name}" 
+                                                           FontSize="14" 
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="#333"/>
+                                                <TextBlock Text="{Binding Email}" 
+                                                           FontSize="12" 
+                                                           Foreground="#666"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                                <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                                                    <Border Background="#E3F2FD" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2">
+                                                        <TextBlock Text="{Binding UserType}" 
+                                                                   FontSize="11" 
+                                                                   Foreground="#1976D2"/>
+                                                    </Border>
+                                                    <Border Background="#FFEBEE" 
+                                                            CornerRadius="4" 
+                                                            Padding="6,2"
+                                                            Margin="5,0,0,0"
+                                                            Visibility="{Binding IsBlocked, Converter={StaticResource BooleanToVisibilityConverter}}">
+                                                        <TextBlock Text="Заблокирован" 
+                                                                   FontSize="11" 
+                                                                   Foreground="#D32F2F"/>
+                                                    </Border>
+                                                </StackPanel>
                                     </StackPanel>
+
+                                            <!-- Индикатор выбора -->
+                                            <materialDesign:PackIcon Grid.Column="2" 
+                                                                   Kind="ChevronRight" 
+                                                                   Width="24" 
+                                                                   Height="24"
+                                                                   VerticalAlignment="Center"
+                                                                   Foreground="#666"/>
+                                        </Grid>
                                 </Border>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
+                            <ListBox.ItemContainerStyle>
+                                <Style TargetType="ListBoxItem">
+                                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                    <Setter Property="Margin" Value="0"/>
+                                </Style>
+                            </ListBox.ItemContainerStyle>
                     </ListBox>
+                    </Grid>
                 </ScrollViewer>
 
                 <!-- Кнопки управления -->
-                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" Orientation="Horizontal" HorizontalAlignment="Left" Margin="0,10,0,0">
-                    <Button Content="Блокировать/Разблокировать" Command="{Binding BlockUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}" Width="150"/>
-                    <Button Content="Сохранить изменения" Command="{Binding UpdateUserCommand}" Margin="5" Style="{StaticResource MahApps.Styles.Button}" Width="150"/>
+                <StackPanel Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2" 
+                          Orientation="Horizontal" 
+                          HorizontalAlignment="Left" 
+                          Margin="0,10,0,0">
+                    <Button Content="Блокировать/Разблокировать" 
+                            Command="{Binding BlockUserCommand}" 
+                            Margin="5" 
+                            Style="{StaticResource PrimaryButton}"
+                            Width="200"/>
+                    <Button Content="Сохранить изменения" 
+                            Command="{Binding UpdateUserCommand}" 
+                            Margin="5" 
+                            Style="{StaticResource SecondaryButton}"
+                            Width="150"/>
                 </StackPanel>
 
                 <!-- Редактирование пользователя -->
-                <StackPanel Grid.Row="0" Grid.Column="1" Margin="20,0,0,0" Width="300">
-                    <TextBlock Text="Редактировать пользователя" FontSize="16" FontWeight="Bold" Margin="0,0,0,10"/>
-                    <TextBlock Text="Имя" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding SelectedUser.Name, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.Watermark="Введите имя" Margin="0,0,0,10"/>
-                    <TextBlock Text="Email" Margin="0,0,0,5"/>
-                    <TextBox Text="{Binding SelectedUser.Email, UpdateSourceTrigger=PropertyChanged}" mah:TextBoxHelper.Watermark="Введите email" Margin="0,0,0,10"/>
-                    <TextBlock Text="Тип пользователя" Margin="0,0,0,5"/>
-                    <ComboBox SelectedValue="{Binding SelectedUser.UserType, UpdateSourceTrigger=PropertyChanged}" SelectedValuePath="Content" Margin="0,0,0,10">
+                <Border Grid.Row="0" Grid.Column="1" 
+                        Margin="20,0,0,0" 
+                        Width="300"
+                        Background="White"
+                        CornerRadius="8"
+                        Padding="20">
+                    <StackPanel>
+                        <TextBlock Text="Редактировать пользователя" 
+                                 FontSize="18" 
+                                 FontWeight="SemiBold" 
+                                 Foreground="#333"
+                                 Margin="0,0,0,20"/>
+
+                        <TextBlock Text="Имя" 
+                                 FontSize="14"
+                                 Foreground="#666"
+                                 Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedUser.Name, UpdateSourceTrigger=PropertyChanged}" 
+                                Style="{StaticResource MahApps.Styles.TextBox}"
+                                mah:TextBoxHelper.Watermark="Введите имя" 
+                                Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Email" 
+                                 FontSize="14"
+                                 Foreground="#666"
+                                 Margin="0,0,0,5"/>
+                        <TextBox Text="{Binding SelectedUser.Email, UpdateSourceTrigger=PropertyChanged}" 
+                                Style="{StaticResource MahApps.Styles.TextBox}"
+                                mah:TextBoxHelper.Watermark="Введите email" 
+                                Margin="0,0,0,15"/>
+
+                        <TextBlock Text="Тип пользователя" 
+                                 FontSize="14"
+                                 Foreground="#666"
+                                 Margin="0,0,0,5"/>
+                        <ComboBox SelectedValue="{Binding SelectedUser.UserType, UpdateSourceTrigger=PropertyChanged}" 
+                                Style="{StaticResource MahApps.Styles.ComboBox}"
+                                SelectedValuePath="Content" 
+                                Margin="0,0,0,15">
                         <ComboBoxItem Content="Client"/>
                         <ComboBoxItem Content="Tutor"/>
                         <ComboBoxItem Content="Admin"/>
                     </ComboBox>
-                    <CheckBox IsChecked="{Binding SelectedUser.IsBlocked, UpdateSourceTrigger=PropertyChanged}" Content="Заблокирован" Margin="0,0,0,10"/>
+
+                        <CheckBox IsChecked="{Binding SelectedUser.IsBlocked, UpdateSourceTrigger=PropertyChanged}" 
+                                Content="Заблокирован" 
+                                Margin="0,0,0,20"
+                                Foreground="#666"/>
                 </StackPanel>
+                </Border>
             </Grid>
         </Border>
 
         <!-- Модерация отзывов -->
-        <Border Grid.Row="2" CornerRadius="8" Background="{DynamicResource MahApps.Brushes.Control.Background}" Padding="20">
-            <StackPanel>
-                <TextBlock Text="Модерация отзывов" FontSize="18" FontWeight="Bold" Margin="0,0,0,15" Foreground="#333"/>
-                <ScrollViewer VerticalScrollBarVisibility="Auto" Height="250">
-                    <ListBox ItemsSource="{Binding Reviews}" SelectedItem="{Binding SelectedReview}">
+        <Border Grid.Row="2" 
+                CornerRadius="8" 
+                Background="White" 
+                Padding="20">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Grid.Row="0"
+                         Text="Модерация отзывов" 
+                         FontSize="18" 
+                         FontWeight="SemiBold" 
+                         Margin="0,0,0,15" 
+                         Foreground="#333"/>
+
+                <!-- Сообщение об отсутствии отзывов -->
+                <TextBlock Grid.Row="1"
+                         Text="Нет отзывов для модерации" 
+                         FontSize="16" 
+                         Foreground="#666"
+                         HorizontalAlignment="Center"
+                         VerticalAlignment="Center"
+                         Margin="0,20"
+                         Visibility="{Binding Reviews.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=0}"/>
+
+                <ScrollViewer Grid.Row="1" 
+                            VerticalScrollBarVisibility="Auto"
+                            Visibility="{Binding Reviews.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=1}">
+                    <ListBox ItemsSource="{Binding Reviews}"
+                           SelectedItem="{Binding SelectedReview}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Background="#F5F5F5"
+                                        CornerRadius="8" 
+                                        Padding="15" 
+                                        Margin="0,0,0,10">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Заголовок отзыва -->
+                                        <Grid Grid.Row="0">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                     Text="{Binding TutorName, StringFormat='Репетитор: {0}'}" 
+                                                     FontWeight="SemiBold"
+                                                     FontSize="14"
+                                                     Foreground="#333"/>
+
+                                                    <TextBlock Grid.Column="1"
+                                                             Text="{Binding CreatedAt, StringFormat='Создан: {0:dd MMMM yyyy HH:mm}'}"
+                                                             FontSize="12"
+                                                             Foreground="#666"/>
+                                        </Grid>
+
+                                        <!-- Текст отзыва -->
+                                        <TextBox Grid.Row="1"
+                                                Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" 
+                                                Style="{StaticResource MahApps.Styles.TextBox}"
+                                                TextWrapping="Wrap" 
+                                                AcceptsReturn="True"
+                                                Height="80"
+                                                Margin="0,10"/>
+
+                                        <!-- Рейтинг -->
+                                        <StackPanel Grid.Row="2" 
+                                                  Orientation="Horizontal" 
+                                                  Margin="0,0,0,10">
+                                            <TextBlock Text="Рейтинг:" 
+                                                     VerticalAlignment="Center"
+                                                     Foreground="#666"/>
+                                            <TextBox Text="{Binding Rating, UpdateSourceTrigger=PropertyChanged}" 
+                                                    Width="50" 
+                                                    Margin="10,0"
+                                                    Style="{StaticResource MahApps.Styles.TextBox}"
+                                                    TextAlignment="Center"/>
+                                            <TextBlock Text="★" 
+                                                     Foreground="#FFC107"
+                                                     FontSize="16"
+                                                     VerticalAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <!-- Кнопки управления -->
+                                        <StackPanel Grid.Row="3" 
+                                                  Orientation="Horizontal" 
+                                                  HorizontalAlignment="Right">
+                                            <Button Content="Сохранить" 
+                                                    Command="{Binding DataContext.UpdateReviewCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    Style="{StaticResource PrimaryButton}"
+                                                    Width="120"
+                                                    Height="35"
+                                                    Margin="0,0,10,0"/>
+                                            <Button Content="Удалить" 
+                                                    Command="{Binding DataContext.DeleteReviewCommand, RelativeSource={RelativeSource AncestorType=ListBox}}"
+                                                    Style="{StaticResource SecondaryButton}"
+                                                    Width="120"
+                                                    Height="35"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
                         <ListBox.ItemContainerStyle>
                             <Style TargetType="ListBoxItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
                                 <Setter Property="Background" Value="Transparent"/>
                                 <Setter Property="Template">
                                     <Setter.Value>
@@ -111,31 +504,9 @@
                                 </Setter>
                             </Style>
                         </ListBox.ItemContainerStyle>
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Border BorderBrush="Gray" BorderThickness="1" Padding="10" Margin="0,5">
-                                    <StackPanel>
-                                        <TextBlock Text="{Binding TutorName, StringFormat='Репетитор: {0}'}" FontWeight="Bold" Margin="0,0,0,5"/>
-                                        <TextBox Text="{Binding Text, UpdateSourceTrigger=PropertyChanged}" TextWrapping="Wrap" Margin="0,0,0,5" AcceptsReturn="True"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,0,0,5">
-                                            <TextBlock Text="Рейтинг: "/>
-                                            <TextBox Text="{Binding Rating, UpdateSourceTrigger=PropertyChanged}" Width="50" Margin="5,0,0,0" TextAlignment="Center"/>
-                                            <TextBlock Text="★"/>
-                                        </StackPanel>
-                                        <TextBlock Text="{Binding CreatedAt, StringFormat='Создан: {0:dd MMMM yyyy HH:mm}'}"/>
-                                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                            <Button Content="Сохранить изменения" Command="{Binding DataContext.UpdateReviewCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                                                    Margin="5,0" Style="{StaticResource MahApps.Styles.Button}" Width="120"/>
-                                            <Button Content="Удалить отзыв" Command="{Binding DataContext.DeleteReviewCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                                                    Margin="5,0" Style="{StaticResource MahApps.Styles.Button}" Width="120"/>
-                                        </StackPanel>
-                                    </StackPanel>
-                                </Border>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
                     </ListBox>
                 </ScrollViewer>
-            </StackPanel>
+            </Grid>
         </Border>
     </Grid>
 </Page>

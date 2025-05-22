@@ -1,15 +1,75 @@
-﻿using GalaSoft.MvvmLight;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using GalaSoft.MvvmLight;
 
 namespace Coach_search.Models
 {
-    public class Client
+    public class Client : INotifyPropertyChanged
     {
-        public int UserId { get; set; }
-        public string Name { get; set; }
-        public string Email { get; set; }
-        public List<Booking> Bookings { get; set; } = new();
+        private int _userId;
+        private string _name;
+        private string _email;
+        private List<Booking> _bookings = new();
+        private string _avatarPath;
 
-        public string AvatarPath { get; set; }
+        public int UserId
+        {
+            get => _userId;
+            set
+            {
+                _userId = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Name
+        {
+            get => _name;
+            set
+            {
+                _name = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string Email
+        {
+            get => _email;
+            set
+            {
+                _email = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public List<Booking> Bookings
+        {
+            get => _bookings;
+            set
+            {
+                _bookings = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string AvatarPath
+        {
+            get => string.IsNullOrEmpty(_avatarPath) ? "/MVVM/View/images/icons/defaultavatar.png" : _avatarPath;
+            set
+            {
+                _avatarPath = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
     }
 
     public class Booking : ObservableObject
@@ -23,6 +83,8 @@ namespace Coach_search.Models
         private bool _canCancel;
         private string _clientName;
         private bool _canLeaveReview;
+        private bool _isTutorBlocked;
+        private bool _isClientBlocked; // Новое свойство для отслеживания блокировки репетитора
 
         public int Id
         {
@@ -76,6 +138,18 @@ namespace Coach_search.Models
         {
             get => _canLeaveReview;
             set => Set(ref _canLeaveReview, value);
+        }
+
+        public bool IsTutorBlocked
+        {
+            get => _isTutorBlocked;
+            set => Set(ref _isTutorBlocked, value); // Уведомление об изменении
+        }
+
+        public bool IsClientBlocked
+        {
+            get => _isClientBlocked;
+            set => Set(ref _isClientBlocked, value);
         }
     }
 }

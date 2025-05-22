@@ -87,7 +87,11 @@ namespace Coach_search.Data
             using (var connection = new SqlConnection(ConnectionString))
             {
                 connection.Open();
-                string query = "SELECT Id, UserId, Name, Subject, Description, AvatarPath, Rating, PricePerHour, IsVisible FROM Tutors WHERE IsVisible = 1";
+                string query = @"
+            SELECT t.Id, t.UserId, t.Name, t.Subject, t.Description, t.AvatarPath, t.Rating, t.PricePerHour, t.IsVisible 
+            FROM Tutors t
+            JOIN Users u ON t.UserId = u.Id
+            WHERE t.IsVisible = 1 AND u.IsBlocked = 0"; // Добавляем проверку на IsBlocked
                 using (var command = new SqlCommand(query, connection))
                 {
                     using (var reader = command.ExecuteReader())
@@ -185,9 +189,11 @@ namespace Coach_search.Data
             {
                 connection.Open();
                 string query = @"
-            SELECT b.Id, b.TutorId, COALESCE(t.Name, 'Репетитор не найден') AS TutorName, b.DateTime, b.Status 
+            SELECT b.Id, b.TutorId, COALESCE(t.Name, 'Репетитор не найден') AS TutorName, 
+                   b.DateTime, b.Status, u.IsBlocked
             FROM Bookings b
             LEFT JOIN Tutors t ON b.TutorId = t.Id
+            LEFT JOIN Users u ON t.UserId = u.Id
             WHERE b.ClientId = @ClientId";
                 using (var command = new SqlCommand(query, connection))
                 {
@@ -200,9 +206,10 @@ namespace Coach_search.Data
                             {
                                 Id = reader.GetInt32(0),
                                 TutorId = reader.GetInt32(1),
-                                TutorName = reader.GetString(2), // COALESCE гарантирует, что имя всегда будет
+                                TutorName = reader.GetString(2),
                                 DateTime = reader.GetDateTime(3),
-                                Status = reader.GetString(4)
+                                Status = reader.GetString(4),
+                                IsTutorBlocked = reader.IsDBNull(5) ? false : reader.GetBoolean(5) // Добавляем информацию о блокировке
                             });
                         }
                     }
@@ -440,47 +447,45 @@ namespace Coach_search.Data
         public List<Booking> GetBookingsForTutor(int tutorId, int month, int year)
         {
             var bookings = new List<Booking>();
-            try
+            using (var connection = new SqlConnection(ConnectionString))
             {
-                using (var connection = new SqlConnection(ConnectionString))
+                connection.Open();
+                string query = @"
+                    SELECT b.Id, b.ClientId, COALESCE(c.Name, 'Клиент не найден') AS ClientName, 
+                           b.DateTime, b.Status, 
+                           CAST(CASE WHEN u.IsBlocked IS NULL THEN 0 ELSE u.IsBlocked END AS BIT) as IsClientBlocked
+                    FROM Bookings b
+                    LEFT JOIN Clients c ON b.ClientId = c.UserId
+                    LEFT JOIN Users u ON c.UserId = u.Id
+                    WHERE b.TutorId = @TutorId 
+                    AND MONTH(b.DateTime) = @Month 
+                    AND YEAR(b.DateTime) = @Year";
+
+                using (var command = new SqlCommand(query, connection))
                 {
-                    connection.Open();
-                    System.Diagnostics.Debug.WriteLine($"Executing GetBookingsForTutor: TutorId={tutorId}, Month={month}, Year={year}");
-                    string query = @"SELECT b.Id, b.ClientId, b.TutorId, b.DateTime, b.Status, c.Name AS ClientName
-                           FROM Bookings b
-                           JOIN Clients c ON b.ClientId = c.UserId
-                           WHERE b.TutorId = @TutorId AND MONTH(b.DateTime) = @Month AND YEAR(b.DateTime) = @Year";
-                    using (var command = new SqlCommand(query, connection))
+                    command.Parameters.AddWithValue("@TutorId", tutorId);
+                    command.Parameters.AddWithValue("@Month", month);
+                    command.Parameters.AddWithValue("@Year", year);
+
+                    using (var reader = command.ExecuteReader())
                     {
-                        command.Parameters.AddWithValue("@TutorId", tutorId);
-                        command.Parameters.AddWithValue("@Month", month);
-                        command.Parameters.AddWithValue("@Year", year);
-                        using (var reader = command.ExecuteReader())
+                        while (reader.Read())
                         {
-                            while (reader.Read())
+                            var booking = new Booking
                             {
-                                var booking = new Booking
-                                {
-                                    Id = reader.GetInt32(0),
-                                    ClientId = reader.GetInt32(1),
-                                    TutorId = reader.GetInt32(2),
-                                    DateTime = reader.GetDateTime(3),
-                                    Status = reader.GetString(4),
-                                    ClientName = reader.GetString(5)
-                                };
-                                bookings.Add(booking);
-                                System.Diagnostics.Debug.WriteLine($"Found booking: ID={booking.Id}, Date={booking.DateTime}, ClientName={booking.ClientName}");
-                            }
+                                Id = reader.GetInt32(0),
+                                ClientId = reader.GetInt32(1),
+                                ClientName = reader.GetString(2),
+                                DateTime = reader.GetDateTime(3),
+                                Status = reader.GetString(4),
+                                IsClientBlocked = reader.GetBoolean(5)
+                            };
+                            System.Diagnostics.Debug.WriteLine($"Booking loaded: ID={booking.Id}, ClientName={booking.ClientName}, IsBlocked={booking.IsClientBlocked}");
+                            bookings.Add(booking);
                         }
                     }
                 }
             }
-            catch (SqlException ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"SQL Error in GetBookingsForTutor: {ex.Message}");
-                throw;
-            }
-            System.Diagnostics.Debug.WriteLine($"GetBookingsForTutor returned {bookings.Count} bookings");
             return bookings;
         }
 
@@ -792,13 +797,13 @@ namespace Coach_search.Data
             {
                 connection.Open();
                 string query = @"
-                    SELECT DISTINCT SenderId
+                    SELECT DISTINCT 
+                        CASE 
+                            WHEN SenderId = @UserId THEN ReceiverId 
+                            ELSE SenderId 
+                        END as ContactId
                     FROM Messages
-                    WHERE ReceiverId = @UserId
-                    UNION
-                    SELECT DISTINCT ReceiverId
-                    FROM Messages
-                    WHERE SenderId = @UserId";
+                    WHERE SenderId = @UserId OR ReceiverId = @UserId";
                 using (var command = new SqlCommand(query, connection))
                 {
                     command.Parameters.AddWithValue("@UserId", userId);
@@ -806,11 +811,7 @@ namespace Coach_search.Data
                     {
                         while (reader.Read())
                         {
-                            int contactId = reader.GetInt32(0);
-                            if (contactId != userId)
-                            {
-                                contacts.Add(contactId);
-                            }
+                            contacts.Add(reader.GetInt32(0));
                         }
                     }
                 }
@@ -853,17 +854,36 @@ namespace Coach_search.Data
             try
             {
                 connection.Open();
+                // Сначала проверяем, является ли user1Id репетитором
                 var command = new SqlCommand(
-                    @"SELECT COUNT(*) 
-                      FROM Bookings b
-                      JOIN Tutors t ON b.TutorId = t.Id
-                      JOIN Clients c ON b.ClientId = c.UserId
-                      WHERE (t.UserId = @User1Id AND c.UserId = @User2Id) 
-                         OR (t.UserId = @User2Id AND c.UserId = @User1Id)",
+                    @"WITH UserBookings AS (
+                        -- Проверяем случай, когда user1Id - репетитор
+                        SELECT COUNT(*) as cnt
+                        FROM Bookings b
+                        JOIN Tutors t ON b.TutorId = t.Id
+                        WHERE t.UserId = @User1Id 
+                        AND b.ClientId = @User2Id
+                        AND b.Status != 'Отменено'
+                        
+                        UNION ALL
+                        
+                        -- Проверяем случай, когда user2Id - репетитор
+                        SELECT COUNT(*)
+                        FROM Bookings b
+                        JOIN Tutors t ON b.TutorId = t.Id
+                        WHERE t.UserId = @User2Id 
+                        AND b.ClientId = @User1Id
+                        AND b.Status != 'Отменено'
+                    )
+                    SELECT SUM(cnt) FROM UserBookings",
                     connection);
+
                 command.Parameters.AddWithValue("@User1Id", user1Id);
                 command.Parameters.AddWithValue("@User2Id", user2Id);
-                int count = (int)command.ExecuteScalar();
+
+                var result = command.ExecuteScalar();
+                int count = result != DBNull.Value ? Convert.ToInt32(result) : 0;
+                
                 System.Diagnostics.Debug.WriteLine($"HasBookingBetween: User1Id={user1Id}, User2Id={user2Id}, Count={count}");
                 return count > 0;
             }

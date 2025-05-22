@@ -1,22 +1,23 @@
-﻿using System;
+using System;
 using System.Globalization;
+using System.Windows;
 using System.Windows.Data;
 
-namespace Coach_search.MVVM.Converters
+namespace Coach_search.Converters
 {
-    public class BooleanToVisibilityConverter : IValueConverter
+    public class BooleanToVisibilityConverterInverse : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
-            if (value is bool isClient && parameter is string options)
+            if (value is bool boolValue)
             {
-                var parts = options.Split('|');
-                if (parts.Length == 2)
+                if (parameter != null && parameter.ToString() == "Inverse")
                 {
-                    return isClient ? parts[0] : parts[1];
+                    return !boolValue;
                 }
+                return !boolValue ? Visibility.Visible : Visibility.Collapsed;
             }
-            return string.Empty;
+            return Visibility.Collapsed;
         }
 
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
@@ -24,4 +25,4 @@ namespace Coach_search.MVVM.Converters
             throw new NotImplementedException();
         }
     }
-}
+} 

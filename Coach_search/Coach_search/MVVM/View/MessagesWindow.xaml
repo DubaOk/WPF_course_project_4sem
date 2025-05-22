@@ -12,6 +12,7 @@
     <mah:MetroWindow.Resources>
         <converters:BooleanToAlignmentConverter x:Key="BooleanToAlignmentConverter"/>
         <converters:BooleanToBackgroundConverter x:Key="BooleanToBackgroundConverter" />
+        
     </mah:MetroWindow.Resources>
     <Grid Margin="10">
         <Grid.RowDefinitions>
@@ -28,17 +29,20 @@
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition Width="*"/>
-                <!-- Делаем колонку растягиваемой для имени -->
             </Grid.ColumnDefinitions>
             <Button Grid.Column="0" 
                     Content="← Назад" 
                     Command="{Binding GoBackCommand}" 
                     Style="{StaticResource MahApps.Styles.Button.Flat}" 
                     Margin="0,0,10,5"/>
-            <TextBlock Grid.Column="1" 
-                       Text="{Binding OtherUserName}" 
-                       Style="{StaticResource HeaderText}" 
-                       VerticalAlignment="Center"/>
+            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                <TextBlock Text="{Binding OtherUserName}" 
+                           Style="{StaticResource HeaderText}"/>
+               <!-- <TextBlock Text="Репетитор заблокирован" 
+                           Foreground="#EF5350" 
+                           FontSize="12" 
+                           Visibility="{Binding IsOtherUserBlocked, Converter={StaticResource BooleanToVisibilityConverter}}"/>-->
+            </StackPanel>
         </Grid>
 
         <!-- Список сообщений -->
@@ -66,11 +70,13 @@
             <TextBox Grid.Column="0" 
                      Text="{Binding NewMessageContent, UpdateSourceTrigger=PropertyChanged}" 
                      KeyDown="TextBox_KeyDown"
-                     Margin="0,0,5,0"/>
+                     Margin="0,0,5,0"
+                     IsEnabled="{Binding IsOtherUserBlocked, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
             <Button Grid.Column="1" 
                     Content="Отправить" 
                     Command="{Binding SendMessageCommand}" 
-                    Margin="0,0,0,0"/>
+                    Margin="0,0,0,0"
+                    IsEnabled="{Binding IsOtherUserBlocked, Converter={StaticResource BooleanToVisibilityConverter}, ConverterParameter=Inverse}"/>
         </Grid>
     </Grid>
 </mah:MetroWindow>

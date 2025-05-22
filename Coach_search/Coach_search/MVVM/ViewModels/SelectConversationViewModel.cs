@@ -58,56 +58,68 @@ namespace Coach_search.ViewModels
 
         private void LoadUsers()
         {
-            var allUsers = _dbHelper.GetAllUsers().Where(u => u.Id != _currentUserId).ToList();
-            System.Diagnostics.Debug.WriteLine($"Total users loaded: {allUsers.Count}");
-
-            var messageContacts = _dbHelper.GetMessageContacts(_currentUserId);
-            System.Diagnostics.Debug.WriteLine($"Message contacts: {string.Join(", ", messageContacts)}");
-
-            var bookingContacts = new List<int>();
-            if (_userType == UserType.Client)
+            try
             {
-                var bookings = _dbHelper.GetClientBookings(_currentUserId);
-                foreach (var booking in bookings)
+                var allUsers = _dbHelper.GetAllUsers().Where(u => u.Id != _currentUserId && !u.IsBlocked).ToList();
+                System.Diagnostics.Debug.WriteLine($"[LoadUsers] Current user ID: {_currentUserId}, UserType: {_userType}");
+                System.Diagnostics.Debug.WriteLine($"[LoadUsers] Total unblocked users loaded: {allUsers.Count}");
+                foreach (var user in allUsers)
                 {
-                    var tutor = _dbHelper.GetTutorByUserId(booking.TutorId);
-                    if (tutor != null)
-                    {
-                        bookingContacts.Add(tutor.UserId);
-                    }
+                    System.Diagnostics.Debug.WriteLine($"[LoadUsers] Found user: Id={user.Id}, Name={user.Name}, Type={user.UserType}");
                 }
-                System.Diagnostics.Debug.WriteLine($"Client bookings (UserIds): {string.Join(", ", bookingContacts)}");
-            }
-            else if (_userType == UserType.Tutor)
-            {
-                var bookings = _dbHelper.GetBookingsForTutor(_currentUserId, DateTime.Now.Month, DateTime.Now.Year);
-                bookingContacts = bookings.Select(b => b.ClientId).Distinct().ToList();
-                System.Diagnostics.Debug.WriteLine($"Tutor bookings (UserIds): {string.Join(", ", bookingContacts)}");
-            }
 
-            var contactUserIds = messageContacts.Union(bookingContacts).Distinct().ToList();
-            System.Diagnostics.Debug.WriteLine($"Combined contacts: {string.Join(", ", contactUserIds)}");
+                if (_userType == UserType.Admin)
+                {
+                    System.Diagnostics.Debug.WriteLine("[LoadUsers] Loading users for Admin");
+                    Users = new ObservableCollection<User>(allUsers);
+                }
+                else
+                {
+                    System.Diagnostics.Debug.WriteLine($"[LoadUsers] Loading users for {_userType}");
+                    var messageContacts = _dbHelper.GetMessageContacts(_currentUserId);
+                    System.Diagnostics.Debug.WriteLine($"[LoadUsers] Message contacts: {string.Join(", ", messageContacts)}");
 
-            if (_userType == UserType.Tutor)
-            {
-                Users = new ObservableCollection<User>(allUsers
-                    .Where(u => u.UserType == UserType.Client && (contactUserIds.Contains(u.Id) || _dbHelper.HasBookingBetween(_currentUserId, u.Id))));
-            }
-            else if (_userType == UserType.Client)
-            {
-                Users = new ObservableCollection<User>(allUsers
-                    .Where(u => u.UserType == UserType.Tutor && (contactUserIds.Contains(u.Id) || _dbHelper.HasBookingBetween(_currentUserId, u.Id))));
-            }
-            else
-            {
-                Users = new ObservableCollection<User>(allUsers
-                    .Where(u => contactUserIds.Contains(u.Id) || _dbHelper.HasBookingBetween(_currentUserId, u.Id)));
-            }
+                    var filteredUsers = new List<User>();
+                    foreach (var user in allUsers)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[LoadUsers] Checking user {user.Id} ({user.Name}, {user.UserType})");
+                        
+                        bool shouldCheck = (_userType == UserType.Client && user.UserType == UserType.Tutor) ||
+                                         (_userType == UserType.Tutor && user.UserType == UserType.Client);
+                                         
+                        if (shouldCheck)
+                        {
+                            bool hasBooking = _dbHelper.HasBookingBetween(_currentUserId, user.Id);
+                            System.Diagnostics.Debug.WriteLine($"[LoadUsers] User {user.Id} ({user.Name}): shouldCheck=true, hasBooking={hasBooking}");
 
-            System.Diagnostics.Debug.WriteLine($"Filtered users count: {Users.Count}");
-            foreach (var user in Users)
+                            if (hasBooking)
+                            {
+                                filteredUsers.Add(user);
+                                System.Diagnostics.Debug.WriteLine($"[LoadUsers] Added user {user.Id} ({user.Name}) to filtered list");
+                            }
+                        }
+                        else
+                        {
+                            System.Diagnostics.Debug.WriteLine($"[LoadUsers] Skipping user {user.Id} ({user.Name}): wrong user type combination");
+                        }
+                    }
+
+                    System.Diagnostics.Debug.WriteLine($"[LoadUsers] Filtered users count: {filteredUsers.Count}");
+                    foreach (var user in filteredUsers)
+                    {
+                        System.Diagnostics.Debug.WriteLine($"[LoadUsers] Final filtered user: Id={user.Id}, Name={user.Name}, Type={user.UserType}");
+                    }
+
+                    Users = new ObservableCollection<User>(filteredUsers);
+                }
+
+                System.Diagnostics.Debug.WriteLine($"[LoadUsers] Final users count in collection: {Users.Count}");
+            }
+            catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"User {user.Id} ({user.UserType}): AvatarPath = {user.AvatarPath}");
+                System.Diagnostics.Debug.WriteLine($"[LoadUsers] Error: {ex.Message}\nStackTrace: {ex.StackTrace}");
+                MessageBox.Show($"Ошибка при загрузке пользователей: {ex.Message}", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Error);
+                Users = new ObservableCollection<User>();
             }
         }
 

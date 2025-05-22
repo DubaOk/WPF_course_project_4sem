@@ -210,4 +210,8 @@
         </Setter>
     </Style>
 
+    <Style TargetType="Window">
+        <Setter Property="Cursor" Value="Hand"/>
+    </Style>
+
 </ResourceDictionary>

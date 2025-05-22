@@ -134,12 +134,21 @@ namespace Coach_search.ViewModels
         {
             try
             {
-                _dbHelper.UpdateBookingStatus(bookingId, "Подтверждено");
                 var booking = _bookings.FirstOrDefault(b => b.Id == bookingId);
-                if (booking != null)
+                if (booking == null)
                 {
-                    booking.Status = "Подтверждено"; // Это уведомит UI через INotifyPropertyChanged
+                    MessageBox.Show("Бронирование не найдено.", "Ошибка");
+                    return;
                 }
+
+                if (booking.IsClientBlocked)
+                {
+                    MessageBox.Show("Невозможно принять бронирование: клиент заблокирован.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
+                _dbHelper.UpdateBookingStatus(bookingId, "Подтверждено");
+                booking.Status = "Подтверждено"; // Это уведомит UI через INotifyPropertyChanged
                 Messenger.Default.Send(new NotificationMessage("BookingUpdated"));
                 MessageBox.Show("Бронирование подтверждено!", "Успех");
             }

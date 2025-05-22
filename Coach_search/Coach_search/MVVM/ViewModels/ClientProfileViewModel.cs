@@ -86,10 +86,10 @@ namespace Coach_search.ViewModels
                 Bookings.Clear();
                 foreach (var booking in bookings)
                 {
-                    booking.CanCancel = booking.Status == "Ожидает";
+                    booking.CanCancel = booking.Status == "Ожидает" && !booking.IsTutorBlocked; // Отмена возможна, только если репетитор не заблокирован
                     booking.CanLeaveReview = booking.Status == "Подтверждено" && !_dbHelper.HasReviewForBooking(booking.Id);
                     Bookings.Add(booking);
-                    System.Diagnostics.Debug.WriteLine($"Booking ID: {booking.Id}, TutorName: {booking.TutorName}, Status: {booking.Status}, CanCancel: {booking.CanCancel}, CanLeaveReview: {booking.CanLeaveReview}");
+                    System.Diagnostics.Debug.WriteLine($"Booking ID: {booking.Id}, TutorName: {booking.TutorName}, Status: {booking.Status}, CanCancel: {booking.CanCancel}, CanLeaveReview: {booking.CanLeaveReview}, IsTutorBlocked: {booking.IsTutorBlocked}");
                 }
 
                 var reviews = _dbHelper.GetClientReviews(userId) ?? new List<Review>();

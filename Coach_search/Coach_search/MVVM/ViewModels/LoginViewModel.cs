@@ -5,6 +5,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Coach_search.Data;
 using Coach_search.Models;
+using Coach_search.MVVM.Models;
 using Coach_search.MVVM.View;
 using BCrypt.Net;
 
@@ -293,9 +294,7 @@ namespace Coach_search.ViewModels
         {
             if (string.IsNullOrWhiteSpace(email))
                 return false;
-
-            // Простая регулярка для проверки формата email
-            string emailPattern = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
+            string emailPattern = @"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9][a-zA-Z0-9-]*[a-zA-Z0-9]\.[a-zA-Z]{2,6}$";
             return Regex.IsMatch(email, emailPattern);
         }
 

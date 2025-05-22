@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using Coach_search.Data;
 using Coach_search.Models;
+using Coach_search.MVVM.Models;
 using Coach_search.MVVM.View;
 
 namespace Coach_search.ViewModels
@@ -180,10 +181,10 @@ namespace Coach_search.ViewModels
             PriceRanges = new ObservableCollection<string>
             {
                 "Любая цена",
-                "0-500",
-                "500-1000",
-                "1000-2000",
-                "2000+"
+                "0-15",
+                "15-50",
+                "50-100",
+                "100+"
             };
 
             ShowTutorDetailsCommand = new RelayCommand(ShowTutorDetails);
@@ -405,24 +406,24 @@ namespace Coach_search.ViewModels
 
             if (!string.IsNullOrEmpty(SearchRating) && SearchRating != "Любой рейтинг" && double.TryParse(SearchRating, out double rating))
             {
-                filteredTutors = filteredTutors.Where(t => t.Rating >= rating);
+                filteredTutors = filteredTutors.Where(t => Math.Round(t.Rating) == rating);
             }
 
             if (!string.IsNullOrEmpty(SearchPriceRange) && SearchPriceRange != "Любая цена")
             {
                 switch (SearchPriceRange)
                 {
-                    case "0-500":
-                        filteredTutors = filteredTutors.Where(t => t.PricePerHour >= 0 && t.PricePerHour <= 500);
+                    case "0-15":
+                        filteredTutors = filteredTutors.Where(t => t.PricePerHour >= 0 && t.PricePerHour <= 15);
                         break;
-                    case "500-1000":
-                        filteredTutors = filteredTutors.Where(t => t.PricePerHour > 500 && t.PricePerHour <= 1000);
+                    case "15-50":
+                        filteredTutors = filteredTutors.Where(t => t.PricePerHour > 15 && t.PricePerHour <= 50);
                         break;
-                    case "1000-2000":
-                        filteredTutors = filteredTutors.Where(t => t.PricePerHour > 1000 && t.PricePerHour <= 2000);
+                    case "50-100":
+                        filteredTutors = filteredTutors.Where(t => t.PricePerHour > 50 && t.PricePerHour <= 100);
                         break;
-                    case "2000+":
-                        filteredTutors = filteredTutors.Where(t => t.PricePerHour > 2000);
+                    case "100+":
+                        filteredTutors = filteredTutors.Where(t => t.PricePerHour >= 100);
                         break;
                 }
             }

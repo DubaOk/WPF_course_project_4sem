@@ -3,7 +3,13 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
-      Title="MainPage">
+      xmlns:converters="clr-namespace:Coach_search.Converters"
+    Title="MainPage"
+      >
+    <Page.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
+    </Page.Resources>
     <Grid Background="{StaticResource BackgroundColor}">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="240"/>
@@ -38,61 +44,75 @@
                     <ComboBox Width="180" Margin="0,0,12,0" ItemsSource="{Binding Subjects}" SelectedItem="{Binding SearchSubject}" Style="{DynamicResource MahApps.Styles.ComboBox}" mah:TextBoxHelper.Watermark="Предмет"/>
                     <ComboBox Width="180" Margin="0,0,12,0" ItemsSource="{Binding Ratings}" SelectedItem="{Binding SearchRating}" Style="{DynamicResource MahApps.Styles.ComboBox}" mah:TextBoxHelper.Watermark="Рейтинг"/>
                     <ComboBox Width="180" Margin="0,0,12,0" ItemsSource="{Binding PriceRanges}" SelectedItem="{Binding SearchPriceRange}" Style="{DynamicResource MahApps.Styles.ComboBox}" mah:TextBoxHelper.Watermark="Цена"/>
-                    <Button Content="Найти" Command="{Binding SearchCommand}" Style="{StaticResource PrimaryButton}"/>
+                    <Button Content="Сброс фильтров" Command="{Binding NavigateCommand}" CommandParameter="MainPage" Style="{StaticResource PrimaryButton}" Width="131" Height="32"/>
                 </StackPanel>
             </StackPanel>
 
             <!-- Список репетиторов -->
             <ScrollViewer Grid.Row="1" Style="{StaticResource CustomScrollViewer}" FocusManager.IsFocusScope="True">
-                <ListBox ItemsSource="{Binding Tutors}" SelectedItem="{Binding SelectedTutor}" Style="{StaticResource ListBoxStyle}">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource CardStyle}" HorizontalAlignment="Stretch">
-                                <Grid HorizontalAlignment="Stretch">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                <!-- Сообщение об отсутствии репетиторов -->
+                <StackPanel>
+                    <TextBlock Text="По вашему запросу не найдено ни одного репетитора"
+                               FontSize="16"
+                               Foreground="#666"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"
+                               Margin="0,20,0,0"
+                               Visibility="{Binding Tutors.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=0}"/>
 
-                                    <!-- Аватар -->
-                                    <Ellipse Width="80" Height="80" Margin="0,0,20,0" HorizontalAlignment="Left">
-                                        <Ellipse.Fill>
-                                            <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
-                                        </Ellipse.Fill>
-                                    </Ellipse>
+                    <ListBox ItemsSource="{Binding Tutors}" 
+                            SelectedItem="{Binding SelectedTutor}" 
+                            Style="{StaticResource ListBoxStyle}"
+                            Visibility="{Binding Tutors.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=1}">
+                        <ListBox.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource CardStyle}" HorizontalAlignment="Stretch">
+                                    <Grid HorizontalAlignment="Stretch">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
 
-                                    <!-- Информация -->
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}" Style="{StaticResource SubHeaderText}" FontSize="18" FontWeight="SemiBold"/>
-                                        <TextBlock Text="{Binding Subject}" Style="{StaticResource BodyText}" FontSize="15"/>
-                                        <TextBlock Text="{Binding PricePerHour, StringFormat={}{0} ₽/ч}" Style="{StaticResource BodyText}" FontSize="15"/>
-                                        <TextBlock Text="{Binding Rating, StringFormat=Рейтинг: {0:F1} ★}" Style="{StaticResource BodyText}" FontSize="15"/>
-                                        <TextBlock Text="{Binding Description}" Style="{StaticResource BodyText}" FontSize="14" TextTrimming="CharacterEllipsis" MaxHeight="50"/>
-                                    </StackPanel>
+                                        <!-- Аватар -->
+                                        <Ellipse Width="80" Height="80" Margin="0,0,20,0" HorizontalAlignment="Left">
+                                            <Ellipse.Fill>
+                                                <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                                            </Ellipse.Fill>
+                                        </Ellipse>
 
-                                    <!-- Кнопки -->
-                                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Orientation="Vertical">
-                                        <Button Content="Записаться" 
-                                                Command="{Binding DataContext.EnrollCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                                                CommandParameter="{Binding}" 
-                                                Visibility="{Binding IsClient, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                Style="{StaticResource SecondaryButton}" 
-                                                Margin="0,0,0,8" 
-                                                Width="120" 
-                                                Height="40"/>
-                                        <Button Content="Подробнее" 
-                                                Command="{Binding DataContext.ShowTutorDetailsCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
-                                                CommandParameter="{Binding}" 
-                                                Style="{StaticResource PrimaryButton}" 
-                                                Width="120" 
-                                                Height="40"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
+                                        <!-- Информация -->
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <TextBlock Text="{Binding Name}" Style="{StaticResource SubHeaderText}" FontSize="18" FontWeight="SemiBold"/>
+                                            <TextBlock Text="{Binding Subject}" Style="{StaticResource BodyText}" FontSize="15"/>
+                                            <TextBlock Text="{Binding PricePerHour, StringFormat={}{0} BYN}" Style="{StaticResource BodyText}" FontSize="15"/>
+                                            <TextBlock Text="{Binding Rating, StringFormat=Рейтинг: {0:F1} ★}" Style="{StaticResource BodyText}" FontSize="15"/>
+                                            <TextBlock Text="{Binding Description}" Style="{StaticResource BodyText}" FontSize="14" TextTrimming="CharacterEllipsis" MaxHeight="50"/>
+                                        </StackPanel>
+
+                                        <!-- Кнопки -->
+                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Orientation="Vertical">
+                                            <Button Content="Записаться" 
+                                                    Command="{Binding DataContext.EnrollCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                                    CommandParameter="{Binding}"
+                                                    Visibility="{Binding DataContext.IsClient, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BooleanToVisibilityConverter}}"
+                                                    Style="{StaticResource SecondaryButton}" 
+                                                    Margin="0,0,0,8" 
+                                                    Width="120" 
+                                                    Height="40"/>
+                                            <Button Content="Подробнее" 
+                                                    Command="{Binding DataContext.ShowTutorDetailsCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
+                                                    CommandParameter="{Binding}" 
+                                                    Style="{StaticResource PrimaryButton}" 
+                                                    Width="120" 
+                                                    Height="40"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
+                </StackPanel>
             </ScrollViewer>
         </Grid>
     </Grid>

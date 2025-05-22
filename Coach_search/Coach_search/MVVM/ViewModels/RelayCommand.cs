@@ -3,20 +3,12 @@ using System.Windows.Input;
 
 namespace Coach_search.ViewModels
 {
-    public class RelayCommand : ICommand
+    public class RelayCommand<T> : ICommand
     {
-        private readonly Action<object> _executeWithParam;
-        private readonly Action _execute;
-        private readonly Func<object, bool> _canExecuteWithParam;
-        private readonly Func<bool> _canExecute;
+        private readonly Action<T> _execute;
+        private readonly Func<T, bool> _canExecute;
 
-        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
-        {
-            _executeWithParam = execute ?? throw new ArgumentNullException(nameof(execute));
-            _canExecuteWithParam = canExecute;
-        }
-
-        public RelayCommand(Action execute, Func<bool> canExecute = null)
+        public RelayCommand(Action<T> execute, Func<T, bool> canExecute = null)
         {
             _execute = execute ?? throw new ArgumentNullException(nameof(execute));
             _canExecute = canExecute;
@@ -24,25 +16,41 @@ namespace Coach_search.ViewModels
 
         public bool CanExecute(object parameter)
         {
-            if (_canExecuteWithParam != null)
-                return _canExecuteWithParam(parameter);
             if (_canExecute != null)
-                return _canExecute();
+            {
+                return _canExecute((T)parameter);
+            }
             return true;
         }
 
         public void Execute(object parameter)
         {
-            if (_executeWithParam != null)
-                _executeWithParam(parameter);
-            else
-                _execute();
+            _execute((T)parameter);
         }
 
         public event EventHandler CanExecuteChanged
         {
             add { CommandManager.RequerySuggested += value; }
             remove { CommandManager.RequerySuggested -= value; }
+        }
+
+        public void RaiseCanExecuteChanged()
+        {
+            CommandManager.InvalidateRequerySuggested();
+        }
+    }
+
+    // Оставляем старую версию для совместимости
+    public class RelayCommand : RelayCommand<object>
+    {
+        public RelayCommand(Action<object> execute, Func<object, bool> canExecute = null)
+            : base(execute, canExecute)
+        {
+        }
+
+        public RelayCommand(Action execute, Func<bool> canExecute = null)
+            : base(_ => execute(), canExecute != null ? _ => canExecute() : (Func<object, bool>)null)
+        {
         }
     }
 }

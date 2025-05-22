@@ -5,91 +5,203 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
         xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
         xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        xmlns:converters="clr-namespace:Coach_search.Converters"
+        TextElement.Foreground="#333333"
+        TextElement.FontWeight="Regular"
+        TextElement.FontSize="13"
+        TextOptions.TextFormattingMode="Ideal"
+        TextOptions.TextRenderingMode="Auto"
+        Background="White"
+        FontFamily="{materialDesign:MaterialDesignFont}"
         mc:Ignorable="d" 
         Title="Профиль репетитора"
-        Height="500" Width="600"
-        WindowStartupLocation="CenterOwner"
-        Background="{DynamicResource MahApps.Brushes.ThemeBackground}">
-    <Grid Margin="20">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+        Height="650" Width="800"
+        WindowStartupLocation="CenterOwner">
+    
+    <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter"/>
+        
+        <Style x:Key="SectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="16"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Margin" Value="0,20,0,10"/>
+            <Setter Property="Foreground" Value="#333333"/>
+        </Style>
+        
+        <Style x:Key="InfoLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#666666"/>
+            <Setter Property="Margin" Value="0,0,10,0"/>
+        </Style>
+        
+        <Style x:Key="InfoValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#333333"/>
+        </Style>
+    </Window.Resources>
 
-        <!-- Заголовок -->
-        <TextBlock Grid.Row="0" 
-                   Text="Профиль репетитора" 
-                   FontSize="24" 
-                   FontWeight="Bold" 
-                   Margin="0,0,0,20" 
-                   Foreground="#333"/>
+    <materialDesign:Card Margin="20" UniformCornerRadius="15" Background="White">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
 
-        <!-- Основная информация -->
-        <StackPanel Grid.Row="1">
-            <!-- Аватарка -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,15">
-                <Ellipse Width="100" Height="100" Margin="0,0,15,0">
-                    <Ellipse.Fill>
-                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=W:\Labs_sem4\course_project\Coach_search\Coach_search\MVVM\View\images\icons\defaultavatar.png}"/>
-                    </Ellipse.Fill>
-                </Ellipse>
-            </StackPanel>
+            <!-- Верхняя панель с аватаром и основной информацией -->
+            <Grid Grid.Row="0" Background="White" Margin="20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-            <!-- Имя -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Имя:" Width="100" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBlock Text="{Binding Name}" VerticalAlignment="Center" FontSize="16"/>
-            </StackPanel>
+                <!-- Аватар -->
+                <Border Width="150" Height="150" 
+                        CornerRadius="75"
+                        BorderThickness="3"
+                        BorderBrush="#42A5F5"
+                        Margin="0,0,20,0">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.3"/>
+                    </Border.Effect>
+                    <Border.Background>
+                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                    </Border.Background>
+                </Border>
 
-            <!-- Предмет -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Предмет:" Width="100" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBlock Text="{Binding Subject}" VerticalAlignment="Center" FontSize="16"/>
-            </StackPanel>
+                <!-- Основная информация -->
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Name}" 
+                             FontSize="24" 
+                             FontWeight="Bold"
+                             Foreground="#333333"/>
+                    
+                    <Grid Margin="0,15,0,0">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-            <!-- Цена -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Цена за час:" Width="100" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBlock Text="{Binding PricePerHour, StringFormat={}{0} ₽/ч}" VerticalAlignment="Center" FontSize="16"/>
-            </StackPanel>
+                        <!-- Предмет -->
+                        <Border Grid.Column="0" 
+                                Background="#42A5F5" 
+                                CornerRadius="20"
+                                Padding="15,8"
+                                Margin="0,0,15,0">
+                            <TextBlock Text="{Binding Subject}" 
+                                     Foreground="White"
+                                     FontSize="14"/>
+                        </Border>
 
-            <!-- Рейтинг -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                <TextBlock Text="Рейтинг:" Width="100" VerticalAlignment="Center" FontWeight="Bold"/>
-                <TextBlock Text="{Binding Rating, StringFormat={}{0:F1} ★}" VerticalAlignment="Center" FontSize="16"/>
-            </StackPanel>
+                        <!-- Рейтинг -->
+                        <StackPanel Grid.Column="1" 
+                                  Orientation="Horizontal"
+                                  Background="White"
+                                  Margin="0,0,15,0">
+                            <materialDesign:PackIcon Kind="Star" 
+                                                   Foreground="#FFC107"
+                                                   Width="20" Height="20"
+                                                   VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding Rating, StringFormat={}{0:F1}}"
+                                     Margin="5,0,0,0"
+                                     FontSize="16"
+                                     FontWeight="SemiBold"
+                                     Foreground="#333333"
+                                     VerticalAlignment="Center"/>
+                        </StackPanel>
 
-            <!-- Описание -->
-            <StackPanel Margin="0,0,0,15">
-                <TextBlock Text="Описание:" Margin="0,0,0,5" FontWeight="Bold"/>
-                <TextBlock Text="{Binding Description}" TextWrapping="Wrap" MaxHeight="100" FontSize="14"/>
-            </StackPanel>
+                        <!-- Цена -->
+                        <StackPanel Grid.Column="2" 
+                                  Orientation="Horizontal"
+                                  Background="White">
+                            <TextBlock Text="{Binding PricePerHour, StringFormat={}{0} BYN/час}"
+                                     Margin="5,0,0,0"
+                                     FontSize="16"
+                                     FontWeight="SemiBold"
+                                     Foreground="#333333"
+                                     VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Grid>
+                </StackPanel>
+            </Grid>
 
-            <!-- Отзывы -->
-            <StackPanel Margin="0,0,0,15">
-                <TextBlock Text="Отзывы:" Margin="0,0,0,5" FontWeight="Bold"/>
-                <ListBox ItemsSource="{Binding Reviews}" Height="100" Margin="0,0,0,10">
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{Binding Rating, StringFormat=Рейтинг: {0} ★}" Margin="0,0,10,0"/>
-                                <TextBlock Text="{Binding Text}" TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-            </StackPanel>
+            <!-- Описание и отзывы -->
+            <ScrollViewer Grid.Row="1" 
+                         VerticalScrollBarVisibility="Auto"
+                         Margin="20,0,20,20">
+                <StackPanel>
+                    <!-- Описание -->
+                    <TextBlock Text="О репетиторе"
+                             Style="{StaticResource SectionTitle}"/>
+                    <TextBlock Text="{Binding Description}"
+                             TextWrapping="Wrap"
+                             FontSize="14"
+                             Foreground="#333333"
+                             LineHeight="20"/>
 
-            <!-- Кнопка закрытия -->
-            <Button Content="Закрыть" 
-                    Command="{Binding CloseCommand}" 
-                    Style="{DynamicResource MahApps.Styles.Button}"
-                    Background="#42A5F5"
-                    BorderBrush="#42A5F5"
-                    Padding="15,5"
-                    HorizontalAlignment="Right"
-                    mah:ControlsHelper.CornerRadius="5"
-                    Width="100"/>
-        </StackPanel>
-    </Grid>
+                    <!-- Отзывы -->
+                    <TextBlock Text="Отзывы"
+                             Style="{StaticResource SectionTitle}"/>
+                    
+                    <ItemsControl ItemsSource="{Binding Reviews}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <materialDesign:Card Margin="0,0,0,10" 
+                                                   UniformCornerRadius="10"
+                                                   Background="#F5F5F5"
+                                                   Padding="15">
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+
+                                        <!-- Рейтинг -->
+                                        <StackPanel Grid.Row="0" 
+                                                  Orientation="Horizontal"
+                                                  Margin="0,0,0,10">
+                                            <materialDesign:PackIcon Kind="Star"
+                                                                   Foreground="#FFC107"
+                                                                   Width="16" Height="16"
+                                                                   VerticalAlignment="Center"/>
+                                            <TextBlock Text="{Binding Rating}"
+                                                     Margin="5,0,0,0"
+                                                     FontWeight="SemiBold"
+                                                     Foreground="#333333"/>
+                                        </StackPanel>
+
+                                        <!-- Текст отзыва -->
+                                        <TextBlock Grid.Row="1"
+                                                 Text="{Binding Text}"
+                                                 TextWrapping="Wrap"
+                                                 Foreground="#333333"/>
+                                    </Grid>
+                                </materialDesign:Card>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Сообщение об отсутствии отзывов -->
+                    <TextBlock Text="Пока нет отзывов"
+                             FontSize="14"
+                             Foreground="#666666"
+                             HorizontalAlignment="Center"
+                             Margin="0,20"
+                             Visibility="{Binding Reviews.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=0}"/>
+
+                    <!-- Кнопка закрытия -->
+                    <Button Content="Закрыть" 
+                            Command="{Binding CloseCommand}"
+                            Style="{StaticResource MahApps.Styles.Button}"
+                            Background="#42A5F5"
+                            BorderBrush="#42A5F5"
+                            HorizontalAlignment="Right"
+                            Margin="0,20,0,0"
+                            Padding="20,10"
+                            mah:ControlsHelper.CornerRadius="5"/>
+                </StackPanel>
+            </ScrollViewer>
+        </Grid>
+    </materialDesign:Card>
 </Window>

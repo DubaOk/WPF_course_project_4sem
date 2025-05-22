@@ -11,6 +11,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="MVVM\View\images\custom_cursor.cur" />
     <None Remove="MVVM\View\images\icons\calendar.png" />
     <None Remove="MVVM\View\images\icons\defaultavatar.png" />
     <None Remove="MVVM\View\images\icons\exit48.png" />
@@ -38,6 +39,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="MVVM\View\images\custom_cursor.cur">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="MVVM\View\images\icons\calendar.png" />
     <Resource Include="MVVM\View\images\icons\defaultavatar.png" />
     <Resource Include="MVVM\View\images\icons\exit48.png" />

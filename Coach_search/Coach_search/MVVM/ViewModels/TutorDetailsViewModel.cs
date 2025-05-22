@@ -1,5 +1,4 @@
 ﻿using Coach_search.Data;
-using Coach_search.Models;
 using Coach_search.MVVM.Models;
 using Coach_search.MVVM.View;
 using System;

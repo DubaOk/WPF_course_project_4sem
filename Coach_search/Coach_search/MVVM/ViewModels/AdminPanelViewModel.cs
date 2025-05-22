@@ -9,6 +9,7 @@ using Coach_search.Models;
 using Coach_search.MVVM.Models;
 using Coach_search.MVVM.View;
 using Coach_search.ViewModels;
+using System.Linq;
 
 namespace Coach_search.MVVM.ViewModels
 {
@@ -16,22 +17,56 @@ namespace Coach_search.MVVM.ViewModels
     {
         private readonly DatabaseHelper _dbHelper;
         private readonly int _adminId;
-        private ObservableCollection<Coach_search.Models.User> _users;
-        private Coach_search.Models.User _selectedUser;
+        private ObservableCollection<User> _users;
+        private User _selectedUser;
         private ObservableCollection<Review> _reviews;
         private Review _selectedReview;
 
-        public ObservableCollection<Coach_search.Models.User> Users
+        private ObservableCollection<User> _firstColumnUsers;
+        public ObservableCollection<User> FirstColumnUsers
+        {
+            get => _firstColumnUsers;
+            set
+            {
+                _firstColumnUsers = value;
+                OnPropertyChanged(nameof(FirstColumnUsers));
+            }
+        }
+
+        private ObservableCollection<User> _secondColumnUsers;
+        public ObservableCollection<User> SecondColumnUsers
+        {
+            get => _secondColumnUsers;
+            set
+            {
+                _secondColumnUsers = value;
+                OnPropertyChanged(nameof(SecondColumnUsers));
+            }
+        }
+
+        private ObservableCollection<User> _thirdColumnUsers;
+        public ObservableCollection<User> ThirdColumnUsers
+        {
+            get => _thirdColumnUsers;
+            set
+            {
+                _thirdColumnUsers = value;
+                OnPropertyChanged(nameof(ThirdColumnUsers));
+            }
+        }
+
+        public ObservableCollection<User> Users
         {
             get => _users;
             set
             {
                 _users = value;
-                OnPropertyChanged();
+                OnPropertyChanged(nameof(Users));
+                UpdateColumnLists();
             }
         }
 
-        public Coach_search.Models.User SelectedUser
+        public User SelectedUser
         {
             get => _selectedUser;
             set
@@ -87,7 +122,7 @@ namespace Coach_search.MVVM.ViewModels
             try
             {
                 var userList = _dbHelper.GetAllUsers();
-                Users = new ObservableCollection<Coach_search.Models.User>(userList);
+                Users = new ObservableCollection<User>(userList);
                 Reviews = new ObservableCollection<Review>(_dbHelper.GetAllReviews());
             }
             catch (Exception ex)
@@ -124,7 +159,15 @@ namespace Coach_search.MVVM.ViewModels
                 bool newBlockStatus = !SelectedUser.IsBlocked;
                 _dbHelper.ToggleUserBlock(SelectedUser.Id, newBlockStatus);
                 SelectedUser.IsBlocked = newBlockStatus;
-                OnPropertyChanged(nameof(Users));
+                
+                // Обновляем UI
+                var userIndex = Users.IndexOf(SelectedUser);
+                Users.RemoveAt(userIndex);
+                Users.Insert(userIndex, SelectedUser);
+                
+                // Обновляем колонки
+                UpdateColumnLists();
+                
                 MessageBox.Show($"Пользователь {(newBlockStatus ? "заблокирован" : "разблокирован")}!", "Успех");
             }
             catch (Exception ex)
@@ -212,6 +255,19 @@ namespace Coach_search.MVVM.ViewModels
             {
                 MessageBox.Show($"Ошибка обновления отзыва: {ex.Message}", "Ошибка");
             }
+        }
+
+        private void UpdateColumnLists()
+        {
+            if (Users == null) return;
+
+            var usersList = Users.ToList();
+            int totalUsers = usersList.Count;
+            int itemsPerColumn = (int)Math.Ceiling(totalUsers / 3.0);
+
+            FirstColumnUsers = new ObservableCollection<User>(usersList.Take(itemsPerColumn));
+            SecondColumnUsers = new ObservableCollection<User>(usersList.Skip(itemsPerColumn).Take(itemsPerColumn));
+            ThirdColumnUsers = new ObservableCollection<User>(usersList.Skip(itemsPerColumn * 2).Take(itemsPerColumn));
         }
     }
 }
