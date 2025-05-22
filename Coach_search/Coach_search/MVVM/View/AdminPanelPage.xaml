@@ -316,7 +316,7 @@
                             Command="{Binding BlockUserCommand}" 
                             Margin="5" 
                             Style="{StaticResource PrimaryButton}"
-                            Width="200"/>
+                            Width="200" Height="35"/>
                     <Button Content="Сохранить изменения" 
                             Command="{Binding UpdateUserCommand}" 
                             Margin="5" 
@@ -356,18 +356,8 @@
                                 mah:TextBoxHelper.Watermark="Введите email" 
                                 Margin="0,0,0,15"/>
 
-                        <TextBlock Text="Тип пользователя" 
-                                 FontSize="14"
-                                 Foreground="#666"
-                                 Margin="0,0,0,5"/>
-                        <ComboBox SelectedValue="{Binding SelectedUser.UserType, UpdateSourceTrigger=PropertyChanged}" 
-                                Style="{StaticResource MahApps.Styles.ComboBox}"
-                                SelectedValuePath="Content" 
-                                Margin="0,0,0,15">
-                        <ComboBoxItem Content="Client"/>
-                        <ComboBoxItem Content="Tutor"/>
-                        <ComboBoxItem Content="Admin"/>
-                    </ComboBox>
+                        
+                        
 
                         <CheckBox IsChecked="{Binding SelectedUser.IsBlocked, UpdateSourceTrigger=PropertyChanged}" 
                                 Content="Заблокирован" 

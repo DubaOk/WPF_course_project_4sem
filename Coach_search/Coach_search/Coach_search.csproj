@@ -54,4 +54,8 @@
     <Resource Include="MVVM\View\images\icons\sms.png" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="MVVM\View\Converters\" />
+  </ItemGroup>
+
 </Project>

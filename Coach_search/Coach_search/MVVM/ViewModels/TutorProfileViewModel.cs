@@ -9,10 +9,12 @@ using Coach_search.Models;
 using Coach_search.MVVM.Models;
 using Coach_search.MVVM.View;
 using Microsoft.Win32;
+using System.Text.RegularExpressions;
+using System.ComponentModel;
 
 namespace Coach_search.ViewModels
 {
-    public class TutorProfileViewModel : BaseViewModel
+    public class TutorProfileViewModel : BaseViewModel, IDataErrorInfo
     {
         private readonly DatabaseHelper _dbHelper;
         private Tutor _tutor;
@@ -22,9 +24,33 @@ namespace Coach_search.ViewModels
         private string _avatarPath;
         private double _rating;
         private decimal _pricePerHour;
+        private string _priceText;
         private List<string> _subjects;
         private bool _isVisible;
-        private bool _canMakeVisible;
+        private bool _hasErrors;
+
+        public string Error => null;
+
+        public Dictionary<string, string> ValidationErrors { get; } = new Dictionary<string, string>();
+
+        public bool HasErrors
+        {
+            get => _hasErrors;
+            set
+            {
+                _hasErrors = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string this[string propertyName]
+        {
+            get
+            {
+                ValidateProperty(propertyName);
+                return ValidationErrors.ContainsKey(propertyName) ? ValidationErrors[propertyName] : string.Empty;
+            }
+        }
 
         public string Name
         {
@@ -33,7 +59,7 @@ namespace Coach_search.ViewModels
             {
                 _name = value;
                 OnPropertyChanged();
-                UpdateCanMakeVisible();
+                ValidateProperty(nameof(Name));
             }
         }
 
@@ -44,7 +70,7 @@ namespace Coach_search.ViewModels
             {
                 _subject = value;
                 OnPropertyChanged();
-                UpdateCanMakeVisible();
+                ValidateProperty(nameof(Subject));
             }
         }
 
@@ -55,7 +81,7 @@ namespace Coach_search.ViewModels
             {
                 _description = value;
                 OnPropertyChanged();
-                UpdateCanMakeVisible();
+                ValidateProperty(nameof(Description));
             }
         }
 
@@ -86,7 +112,21 @@ namespace Coach_search.ViewModels
             {
                 _pricePerHour = value;
                 OnPropertyChanged();
-                UpdateCanMakeVisible();
+            }
+        }
+
+        public string PriceText
+        {
+            get => _priceText;
+            set
+            {
+                _priceText = value;
+                if (decimal.TryParse(value, out decimal price))
+                {
+                    PricePerHour = price;
+                }
+                OnPropertyChanged();
+                ValidateProperty(nameof(PriceText));
             }
         }
 
@@ -105,26 +145,7 @@ namespace Coach_search.ViewModels
             get => _isVisible;
             set
             {
-                if (_canMakeVisible) // Разрешаем изменение только если все поля заполнены
-                {
-                    _isVisible = value;
-                    OnPropertyChanged();
-                }
-                else if (value) // Если пытаются включить видимость, но нельзя
-                {
-                    MessageBox.Show("Заполните все обязательные поля (ФИО, предмет, описание, стоимость), чтобы сделать профиль видимым.", "Предупреждение", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    _isVisible = false;
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public bool CanMakeVisible
-        {
-            get => _canMakeVisible;
-            set
-            {
-                _canMakeVisible = value;
+                _isVisible = value;
                 OnPropertyChanged();
             }
         }
@@ -146,6 +167,7 @@ namespace Coach_search.ViewModels
                 AvatarPath = _tutor.AvatarPath;
                 Rating = _tutor.Rating;
                 PricePerHour = _tutor.PricePerHour;
+                PriceText = _tutor.PricePerHour.ToString();
                 IsVisible = _tutor.IsVisible;
             }
             else
@@ -156,6 +178,7 @@ namespace Coach_search.ViewModels
                 AvatarPath = string.Empty;
                 Rating = 0;
                 PricePerHour = 0;
+                PriceText = "0";
                 IsVisible = false;
             }
 
@@ -170,15 +193,93 @@ namespace Coach_search.ViewModels
                 "Биология"
             };
 
-            UpdateCanMakeVisible(); // Инициализируем состояние видимости
+            ValidateAll();
 
-            UpdateProfileCommand = new RelayCommand(UpdateProfile, CanUpdateProfile);
+            UpdateProfileCommand = new RelayCommand(UpdateProfile, _ => !HasErrors);
             UploadAvatarCommand = new RelayCommand(UploadAvatar);
             GoBackCommand = new RelayCommand(GoBack);
         }
 
+        private void ValidateAll()
+        {
+            ValidateProperty(nameof(Name));
+            ValidateProperty(nameof(Subject));
+            ValidateProperty(nameof(Description));
+            ValidateProperty(nameof(PriceText));
+
+            HasErrors = ValidationErrors.Any();
+        }
+
+        private void ValidateProperty(string propertyName)
+        {
+            string error = string.Empty;
+            ValidationErrors.Remove(propertyName);
+
+            switch (propertyName)
+            {
+                case nameof(Name):
+                    if (string.IsNullOrWhiteSpace(Name))
+                    {
+                        error = "ФИО не может быть пустым";
+                    }
+                    else if (Name.Length < 2 || Name.Length > 50)
+                    {
+                        error = "ФИО должно содержать от 2 до 50 символов";
+                    }
+                    else if (!Regex.IsMatch(Name, @"^[а-яА-ЯёЁa-zA-Z\s-]+$"))
+                    {
+                        error = "ФИО может содержать только буквы, пробелы и дефисы";
+                    }
+                    break;
+
+                case nameof(Subject):
+                    if (string.IsNullOrWhiteSpace(Subject))
+                    {
+                        error = "Предмет не может быть пустым";
+                    }
+                    break;
+
+                case nameof(Description):
+                    if (string.IsNullOrWhiteSpace(Description))
+                    {
+                        error = "Описание не может быть пустым";
+                    }
+                    else if (Description.Length > 200)
+                    {
+                        error = "Описание не должно превышать 200 символов";
+                    }
+                    break;
+
+                case nameof(PriceText):
+                    if (string.IsNullOrWhiteSpace(PriceText))
+                    {
+                        error = "Цена не может быть пустой";
+                    }
+                    else if (!decimal.TryParse(PriceText, out decimal price) || price <= 0)
+                    {
+                        error = "Цена должна быть положительным числом";
+                    }
+                    break;
+            }
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                ValidationErrors[propertyName] = error;
+            }
+
+            HasErrors = ValidationErrors.Any();
+            OnPropertyChanged(nameof(ValidationErrors));
+        }
+
         private void UpdateProfile(object parameter)
         {
+            ValidateAll();
+            if (HasErrors)
+            {
+                MessageBox.Show("Пожалуйста, исправьте ошибки перед сохранением.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             try
             {
                 if (_tutor == null)
@@ -201,23 +302,6 @@ namespace Coach_search.ViewModels
             {
                 MessageBox.Show($"Ошибка при обновлении профиля: {ex.Message}", "Ошибка");
                 System.Diagnostics.Debug.WriteLine($"UpdateProfile error: {ex.Message}\nStackTrace: {ex.StackTrace}");
-            }
-        }
-
-        private bool CanUpdateProfile(object parameter)
-        {
-            return !string.IsNullOrWhiteSpace(Name) && !string.IsNullOrWhiteSpace(Subject);
-        }
-
-        private void UpdateCanMakeVisible()
-        {
-            CanMakeVisible = !string.IsNullOrWhiteSpace(Name) &&
-                             !string.IsNullOrWhiteSpace(Subject) &&
-                             !string.IsNullOrWhiteSpace(Description) &&
-                             PricePerHour > 0;
-            if (!CanMakeVisible && IsVisible)
-            {
-                IsVisible = false; // Отключаем видимость, если поля стали незаполненными
             }
         }
 
@@ -251,7 +335,6 @@ namespace Coach_search.ViewModels
                     File.Copy(sourcePath, targetPath, true);
                     System.Diagnostics.Debug.WriteLine("File copied successfully.");
 
-                    // Преобразуем путь в абсолютный для корректного отображения в WPF
                     string absolutePath = Path.GetFullPath(targetPath);
                     System.Diagnostics.Debug.WriteLine($"Absolute path: {absolutePath}");
 

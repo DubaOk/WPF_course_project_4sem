@@ -1,0 +1,438 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="Coach_search.MainWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="0.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAE=</HashCode>
+      <FileName>MVVM\View\MainWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.App" Collapsed="true">
+    <Position X="0.5" Y="12" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAA=</HashCode>
+      <FileName>App.xaml.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.Converters.BooleanToAlignmentConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="42.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\BooleanToAlignmentConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.BooleanToBackgroundConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="54" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\BooleanToBackgroundConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.BooleanToVisibilityConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="13.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\BooleanToVisibilityConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.BooleanToVisibilityConverterInverse" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="22.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\BooleanToVisibilityConverterInverse.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.BoolToBackgroundConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="29.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\BoolToBackgroundConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.ChatVisibilityConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="38.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\ChatVisibilityConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.CountToVisibilityConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="31" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\CountToVisibilityConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.IntToVisibilityConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="47.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\IntToVisibilityConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.StatusToVisibilityConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="31.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\StatusToVisibilityConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.UserTypeConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="24.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\UserTypeConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Converters.BooleanToColorConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="58.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\BooleanToColorConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Data.DatabaseHelper" Collapsed="true">
+    <Position X="15.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>DoGAECAICIAQAgAggAAAAEgAASUQoIAgACACBAFAQAQ=</HashCode>
+      <FileName>Database\DatabaseHelper.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.Models.Client" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="49.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAAAIAAAACAgAAAAIAAAAAwAhAAAAAAIIAAAAAAAAAE=</HashCode>
+      <FileName>MVVM\Models\Client.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.Models.Booking" Collapsed="true">
+    <Position X="0.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AUACEAAeBAAAQAAAgABAAAAAIABAAAQSQAQAAAAAEAQ=</HashCode>
+      <FileName>MVVM\Models\Client.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.Models.Message" Collapsed="true">
+    <Position X="6.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAgAAAABAAAIAAAAAAACBAAAAAAAABAAAAAA=</HashCode>
+      <FileName>MVVM\Models\Message.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.Models.User" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="18" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gAQCIAAAACAAAAAAIABAAAQAgAAACkACIAAAAAEAAAE=</HashCode>
+      <FileName>MVVM\Models\UserType.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.Models.Review" Collapsed="true">
+    <Position X="56.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAAAAAAIAAAAgCAAAAAAAAAAAAEQAAQACAAAAAA=</HashCode>
+      <FileName>MVVM\Models\Review.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.MVVM.Models.Tutor" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="51.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>oAACIAAAAAAgEAAMIIBAAAwAgCAAAAEIIAAAIAAAAIA=</HashCode>
+      <FileName>MVVM\Models\Tutor.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.AdminPanelPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="1" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\AdminPanelPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.BookingDetailsWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\BookingDetailsWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.ClientProfilePage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="7.75" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\ClientProfilePage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.EnrollPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.5" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\EnrollPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.LoginWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAABAAAAAAAAAAAAAAAAAAAAAAAAAAAAABAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\LoginWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.MainPage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="10" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\MainPage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.MessagesWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="3" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAABAAAAAAAAAAIAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\MessagesWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.ReviewDialog" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="33.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BBAAAAAAAAAEAAAAAAAAAAAAAAAAAAEAAAQAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\ReviewDialog.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Orientation="Left" Position="0.491" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.SchedulePage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="3.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\SchedulePage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.SelectConversationWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="5.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\SelectConversationWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.TutorDetailsWindow" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="35.25" Y="4.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\TutorDetailsWindow.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.TutorProfilePage" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="12.25" Y="6" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\View\TutorProfilePage.xaml.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.PriceValidationConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="33.75" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAggAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\PriceValidationConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.RatingToStarKindConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="45" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\RatingToStarKindConverter.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.NameLengthValidationConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="27" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\ValidationConverters.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.DescriptionLengthValidationConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="20.25" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\ValidationConverters.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.View.SubjectLengthValidationConverter" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="36" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAIAAAAAAAAgAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Converters\ValidationConverters.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.MVVM.ViewModels.AdminPanelViewModel" Collapsed="true">
+    <Position X="31.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>CAIAAHAIGAQQACAAAAABAAAAAUCAgJAAkKAIAhQEAAI=</HashCode>
+      <FileName>MVVM\ViewModels\AdminPanelViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.BaseViewModel" Collapsed="true">
+    <Position X="18.75" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAIAAAAAAAgAAAAAAAAAAAAEAAAAA=</HashCode>
+      <FileName>MVVM\ViewModels\BaseViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Coach_search.ViewModels.BookingDetailsViewModel" Collapsed="true">
+    <Position X="8.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAACAAAgAEAAAgQgAABABAAAAAAAAAAhAACAAAI=</HashCode>
+      <FileName>MVVM\ViewModels\BookingDetailsViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.ClientProfileViewModel" Collapsed="true">
+    <Position X="13.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAgAkEQAlAA1AQIACAAAAAAIAQEAAAEYAAAAAAAAACI=</HashCode>
+      <FileName>MVVM\ViewModels\ClientProfileViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Coach_search.ViewModels.EnrollViewModel" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="40.5" Y="9" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQACAAACEAAAAGABIAQAAABAgAAACCCDAAQAAAAAAII=</HashCode>
+      <FileName>MVVM\ViewModels\EnrollViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Coach_search.ViewModels.LoginViewModel" Collapsed="true">
+    <Position X="20" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAQAAAAEAAQQAlAAAAAAAACMgARACECEAAI=</HashCode>
+      <FileName>MVVM\ViewModels\LoginViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.MainViewModel" Collapsed="true">
+    <Position X="24.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>gABBAUEgACgQwCACAkAAgApICCEACAAIIQIRACFQBos=</HashCode>
+      <FileName>MVVM\ViewModels\MainViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.MessagesViewModel" Collapsed="true">
+    <Position X="29" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AQAIBAAAEYAAAACgACAAAAQAMAAAAAECEAAEA0AAACI=</HashCode>
+      <FileName>MVVM\ViewModels\MessagesViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.RelayCommand" Collapsed="true">
+    <Position X="4.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\ViewModels\RelayCommand.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.RelayCommand&lt;T&gt;" Collapsed="true">
+    <Position X="4.25" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAQEACAAQAAECAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\ViewModels\RelayCommand.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="Coach_search.ViewModels.ScheduleViewModel" Collapsed="true">
+    <Position X="11" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ABgAAAIDEgAAAAAAAEAEAAAAAAAAACAAAAIAAAAEAAI=</HashCode>
+      <FileName>MVVM\ViewModels\ScheduleViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.CalendarDay" Collapsed="true">
+    <Position X="15.5" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAEAIAAgBIAABAFAAAAABAAAAgABAAAAAAAAAAA=</HashCode>
+      <FileName>MVVM\ViewModels\ScheduleViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.SelectConversationViewModel" Collapsed="true">
+    <Position X="17.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAACAAAICAAAAAAAAAEAAAAAAAAIAAAIIAAAUAAAI=</HashCode>
+      <FileName>MVVM\ViewModels\SelectConversationViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.TutorDetailsViewModel" Collapsed="true">
+    <Position X="22.25" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>kABAAEAAAAAgAAAIAIAAAEQAAAAQAAEAEAAAAAAAAAI=</HashCode>
+      <FileName>MVVM\ViewModels\TutorDetailsViewModel.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Coach_search.ViewModels.TutorProfileViewModel" Collapsed="true">
+    <Position X="26.75" Y="3" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>oAgAoFAAEAAgEQYMCIAAAAQAACEQAAEIIIAAIAAAAII=</HashCode>
+      <FileName>MVVM\ViewModels\TutorProfileViewModel.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="System.Windows.Controls.Page" Collapsed="true">
+    <Position X="6.5" Y="4.5" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="System.Windows.Application" Collapsed="true">
+    <Position X="0.5" Y="10.5" Width="1.5" />
+    <TypeIdentifier />
+    <Lollipop Position="0.2" />
+  </Class>
+  <Class Name="GalaSoft.MvvmLight.ObservableObject" Collapsed="true">
+    <Position X="0.5" Y="0.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="MahApps.Metro.Controls.MetroWindow" Collapsed="true">
+    <Position X="5.25" Y="7.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="System.Object" Collapsed="true">
+    <Position X="22.5" Y="7.75" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="System.Windows.Window" Collapsed="true">
+    <Position X="37.5" Y="5.5" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Enum Name="Coach_search.Models.UserType" Collapsed="true">
+    <Position X="33.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAQAAAAEAAAAAAAAAAAAAAAQ=</HashCode>
+      <FileName>MVVM\Models\UserType.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

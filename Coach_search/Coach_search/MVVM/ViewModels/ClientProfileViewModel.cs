@@ -8,20 +8,48 @@ using System.Windows.Input;
 using Microsoft.Data.SqlClient;
 using Microsoft.Win32;
 using System;
+using System.Text.RegularExpressions;
+using System.ComponentModel;
 
 namespace Coach_search.ViewModels
 {
-    public class ClientProfileViewModel : BaseViewModel
+    public class ClientProfileViewModel : BaseViewModel, IDataErrorInfo
     {
         private readonly DatabaseHelper _dbHelper = new DatabaseHelper();
         private Client _currentClient;
+        private bool _hasErrors;
+
+        public string Error => null;
+
+        public Dictionary<string, string> ValidationErrors { get; } = new Dictionary<string, string>();
+
+        public bool HasErrors
+        {
+            get => _hasErrors;
+            set
+            {
+                _hasErrors = value;
+                OnPropertyChanged();
+            }
+        }
+
         public Client CurrentClient
         {
             get => _currentClient;
             set
             {
                 _currentClient = value;
+                ValidateAll();
                 OnPropertyChanged();
+            }
+        }
+
+        public string this[string propertyName]
+        {
+            get
+            {
+                ValidateProperty(propertyName);
+                return ValidationErrors.ContainsKey(propertyName) ? ValidationErrors[propertyName] : string.Empty;
             }
         }
 
@@ -37,7 +65,7 @@ namespace Coach_search.ViewModels
         public ClientProfileViewModel(int userId)
         {
             GoBackCommand = new RelayCommand(_ => GoBack());
-            SaveProfileCommand = new RelayCommand(_ => SaveProfile());
+            SaveProfileCommand = new RelayCommand(_ => SaveProfile(), _ => !HasErrors);
             CancelBookingCommand = new RelayCommand(CancelBooking);
             AddReviewCommand = new RelayCommand(_ => AddReview());
             AddReviewForBookingCommand = new RelayCommand(AddReviewForBooking);
@@ -46,6 +74,7 @@ namespace Coach_search.ViewModels
             if (TestDatabaseConnection())
             {
                 LoadData(userId);
+                ValidateAll();
             }
             else
             {
@@ -86,7 +115,7 @@ namespace Coach_search.ViewModels
                 Bookings.Clear();
                 foreach (var booking in bookings)
                 {
-                    booking.CanCancel = booking.Status == "Ожидает" && !booking.IsTutorBlocked; // Отмена возможна, только если репетитор не заблокирован
+                    booking.CanCancel = booking.Status == "Ожидает" && !booking.IsTutorBlocked;
                     booking.CanLeaveReview = booking.Status == "Подтверждено" && !_dbHelper.HasReviewForBooking(booking.Id);
                     Bookings.Add(booking);
                     System.Diagnostics.Debug.WriteLine($"Booking ID: {booking.Id}, TutorName: {booking.TutorName}, Status: {booking.Status}, CanCancel: {booking.CanCancel}, CanLeaveReview: {booking.CanLeaveReview}, IsTutorBlocked: {booking.IsTutorBlocked}");
@@ -106,6 +135,64 @@ namespace Coach_search.ViewModels
             }
         }
 
+        private void ValidateAll()
+        {
+            if (CurrentClient == null) return;
+
+            ValidateProperty(nameof(CurrentClient.Name));
+            ValidateProperty(nameof(CurrentClient.Email));
+            
+
+            HasErrors = ValidationErrors.Any();
+        }
+
+        private void ValidateProperty(string propertyName)
+        {
+            if (CurrentClient == null) return;
+
+            string error = string.Empty;
+            ValidationErrors.Remove(propertyName);
+
+            switch (propertyName)
+            {
+                case nameof(CurrentClient.Name):
+                    if (string.IsNullOrWhiteSpace(CurrentClient.Name))
+                    {
+                        error = "ФИО не может быть пустым";
+                    }
+                    else if (CurrentClient.Name.Length < 2 || CurrentClient.Name.Length > 50)
+                    {
+                        error = "ФИО должно содержать от 2 до 50 символов";
+                    }
+                    else if (!Regex.IsMatch(CurrentClient.Name, @"^[а-яА-ЯёЁa-zA-Z\s-]+$"))
+                    {
+                        error = "ФИО может содержать только буквы, пробелы и дефисы";
+                    }
+                    break;
+
+                case nameof(CurrentClient.Email):
+                    if (string.IsNullOrWhiteSpace(CurrentClient.Email))
+                    {
+                        error = "Email не может быть пустым";
+                    }
+                    else if (!Regex.IsMatch(CurrentClient.Email, @"^[^@\s]+@[^@\s]+\.[^@\s]+$"))
+                    {
+                        error = "Введите корректный email адрес";
+                    }
+                    break;
+
+               
+            }
+
+            if (!string.IsNullOrEmpty(error))
+            {
+                ValidationErrors[propertyName] = error;
+            }
+
+            HasErrors = ValidationErrors.Any();
+            OnPropertyChanged(nameof(ValidationErrors));
+        }
+
         private void SaveProfile()
         {
             if (CurrentClient == null)
@@ -114,9 +201,10 @@ namespace Coach_search.ViewModels
                 return;
             }
 
-            if (string.IsNullOrWhiteSpace(CurrentClient.Name))
+            ValidateAll();
+            if (HasErrors)
             {
-                MessageBox.Show("Имя не может быть пустым.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("Пожалуйста, исправьте ошибки перед сохранением.", "Ошибка", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
@@ -142,8 +230,8 @@ namespace Coach_search.ViewModels
                 {
                     try
                     {
-                        _dbHelper.DeleteBooking(booking.Id); // Удаляем запись вместо изменения статуса
-                        Bookings.Remove(booking); // Удаляем запись из коллекции
+                        _dbHelper.DeleteBooking(booking.Id);
+                        Bookings.Remove(booking);
                         MessageBox.Show("Запись успешно отменена.", "Успех", MessageBoxButton.OK, MessageBoxImage.Information);
                     }
                     catch (Exception ex)
@@ -277,7 +365,7 @@ namespace Coach_search.ViewModels
             };
             if (openFileDialog.ShowDialog() == true)
             {
-                CurrentClient.AvatarPath = openFileDialog.FileName; // Сохраняем временный путь
+                CurrentClient.AvatarPath = openFileDialog.FileName;
                 _dbHelper.UpdateClientAvatar(CurrentClient.UserId, CurrentClient.AvatarPath);
                 MessageBox.Show("Аватар обновлен!", "Успех");
             }

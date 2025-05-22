@@ -3,126 +3,449 @@
       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:Coach_search.MVVM.View"
       xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+      xmlns:sys="clr-namespace:System;assembly=mscorlib"
       mc:Ignorable="d" 
-      d:DesignHeight="450" 
-      d:DesignWidth="800"
+      d:DesignHeight="800" d:DesignWidth="1000"
       Title="TutorProfilePage">
-    <Grid Margin="20" Background="White">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
 
-        <!-- Заголовок и кнопка "Назад" -->
-        <Grid Grid.Row="0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+    <Page.Resources>
+        <!-- Анимация для кнопок -->
+        <Storyboard x:Key="ButtonHoverAnimation">
+            <DoubleAnimation Storyboard.TargetProperty="(Button.RenderTransform).(ScaleTransform.ScaleX)"
+                             To="1.05" Duration="0:0:0.2">
+                <DoubleAnimation.EasingFunction>
+                    <PowerEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetProperty="(Button.RenderTransform).(ScaleTransform.ScaleY)"
+                             To="1.05" Duration="0:0:0.2">
+                <DoubleAnimation.EasingFunction>
+                    <PowerEase EasingMode="EaseOut"/>
+                </DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
 
-            <!-- Кнопка "Назад" -->
-            <Button Grid.Column="0" 
-                    Command="{Binding GoBackCommand}" 
-                    Style="{DynamicResource MahApps.Styles.Button}" 
-                    Background="Transparent" 
-                    BorderBrush="Transparent" 
-                    Padding="5" Margin="0,10,0,9" RenderTransformOrigin="0.512,0.528">
-                <materialDesign:PackIcon Kind="ArrowLeft" Width="20" Height="20" Foreground="#666"/>
-            </Button>
+        <!-- Конвертеры -->
+        <local:RatingToStarKindConverter x:Key="RatingToStarKindConverter"/>
+        <local:PriceValidationConverter x:Key="PriceValidationConverter"/>
+        <local:NameLengthValidationConverter x:Key="NameLengthValidationConverter"/>
+        <local:DescriptionLengthValidationConverter x:Key="DescriptionLengthValidationConverter"/>
+        <local:SubjectLengthValidationConverter x:Key="SubjectLengthValidationConverter"/>
+        
+        <!-- Стиль для сообщений об ошибках -->
+        <Style x:Key="ValidationMessage" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="#FF5252"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Margin" Value="0,4,0,16"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+        </Style>
 
-            <TextBlock Grid.Column="1" 
-                       Text="Профиль репетитора" 
-                       FontSize="28" 
-                       FontWeight="Bold" 
-                       Margin="10,10,-10,10" 
-                       Foreground="#333" 
-                       Style="{DynamicResource MahApps.Styles.TextBlock}"/>
-        </Grid>
+        <!-- Стиль для валидации длины имени -->
+        <Style x:Key="NameValidationMessage" TargetType="TextBlock" BasedOn="{StaticResource ValidationMessage}">
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Name}" Value=""/>
+                        <Condition Binding="{Binding Name, Converter={StaticResource NameLengthValidationConverter}}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
 
-        <Grid Grid.Row="1">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- Стиль для валидации длины описания -->
+        <Style x:Key="DescriptionValidationMessage" TargetType="TextBlock" BasedOn="{StaticResource ValidationMessage}">
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Description}" Value=""/>
+                        <Condition Binding="{Binding Description, Converter={StaticResource DescriptionLengthValidationConverter}}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
 
-            <StackPanel Grid.Column="0" Margin="0,0,20,0" HorizontalAlignment="Center">
-                <Ellipse Width="150" Height="150" Margin="0,0,0,10">
-                    <Ellipse.Fill>
-                        <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
-                    </Ellipse.Fill>
-                </Ellipse>
-                <Button Content="Загрузить аватарку" 
-                        Command="{Binding UploadAvatarCommand}" 
-                        Style="{StaticResource PrimaryButton}" 
-                        Background="#42A5F5" 
-                        BorderBrush="#42A5F5" 
-                        Padding="10,5" 
-                        mah:ControlsHelper.CornerRadius="5" Height="30"/>
+        <!-- Стиль для валидации длины предмета -->
+        <Style x:Key="SubjectValidationMessage" TargetType="TextBlock" BasedOn="{StaticResource ValidationMessage}">
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Subject}" Value=""/>
+                        <Condition Binding="{Binding Subject, Converter={StaticResource SubjectLengthValidationConverter}}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для валидации цены -->
+        <Style x:Key="PriceValidationMessage" TargetType="TextBlock" BasedOn="{StaticResource ValidationMessage}">
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding PriceText}" Value=""/>
+                        <Condition Binding="{Binding PriceText, Converter={StaticResource PriceValidationConverter}}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="Visibility" Value="Visible"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для полей с валидацией имени -->
+        <Style x:Key="NameValidationBorder" TargetType="Border">
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=TextBox}}" Value=""/>
+                        <Condition Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=TextBox}, Converter={StaticResource NameLengthValidationConverter}}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="BorderBrush" Value="#FF5252"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для полей с валидацией описания -->
+        <Style x:Key="DescriptionValidationBorder" TargetType="Border">
+            <Style.Triggers>
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=TextBox}}" Value=""/>
+                        <Condition Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=TextBox}, Converter={StaticResource DescriptionLengthValidationConverter}}" Value="False"/>
+                    </MultiDataTrigger.Conditions>
+                    <Setter Property="BorderBrush" Value="#FF5252"/>
+                </MultiDataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Стиль для валидации цены в Border -->
+        <Style x:Key="PriceValidationBorder" TargetType="Border">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Text, RelativeSource={RelativeSource AncestorType=TextBox}, Converter={StaticResource PriceValidationConverter}}" Value="False">
+                    <Setter Property="BorderBrush" Value="#FF5252"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ProfileSectionTitle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="20"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#1976D2"/>
+            <Setter Property="Margin" Value="0,0,0,16"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.1"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="ProfileTextBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Style.Triggers>
+                <Trigger Property="IsFocused" Value="True">
+                    <Setter Property="BorderBrush" Value="#42A5F5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ProfileComboBox" TargetType="ComboBox" BasedOn="{StaticResource {x:Type ComboBox}}">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="BorderThickness" Value="2"/>
+            <Setter Property="BorderBrush" Value="#E0E0E0"/>
+            <Setter Property="Background" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#42A5F5"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="AnimatedButton" TargetType="Button">
+            <Setter Property="RenderTransformOrigin" Value="0.5,0.5"/>
+            <Setter Property="RenderTransform">
+                <Setter.Value>
+                    <ScaleTransform/>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <EventTrigger RoutedEvent="MouseEnter">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(Button.RenderTransform).(ScaleTransform.ScaleX)"
+                                           To="1.05" Duration="0:0:0.2">
+                                <DoubleAnimation.EasingFunction>
+                                    <PowerEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="(Button.RenderTransform).(ScaleTransform.ScaleY)"
+                                           To="1.05" Duration="0:0:0.2">
+                                <DoubleAnimation.EasingFunction>
+                                    <PowerEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="MouseLeave">
+                    <BeginStoryboard>
+                        <Storyboard>
+                            <DoubleAnimation Storyboard.TargetProperty="(Button.RenderTransform).(ScaleTransform.ScaleX)"
+                                           To="1" Duration="0:0:0.2">
+                                <DoubleAnimation.EasingFunction>
+                                    <PowerEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                            <DoubleAnimation Storyboard.TargetProperty="(Button.RenderTransform).(ScaleTransform.ScaleY)"
+                                           To="1" Duration="0:0:0.2">
+                                <DoubleAnimation.EasingFunction>
+                                    <PowerEase EasingMode="EaseOut"/>
+                                </DoubleAnimation.EasingFunction>
+                            </DoubleAnimation>
+                        </Storyboard>
+                    </BeginStoryboard>
+                </EventTrigger>
+            </Style.Triggers>
+        </Style>
+    </Page.Resources>
+
+    <Grid Background="#F8F9FA">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="40">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Левая колонка с аватаром -->
+                    <StackPanel Grid.Column="0" Margin="0,0,40,0">
+                        <Border Width="200" Height="200" 
+                                CornerRadius="100"
+                                BorderThickness="3"
+                                BorderBrush="#42A5F5"
+                                Margin="0,0,0,16">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="15" ShadowDepth="2" Opacity="0.2"/>
+                            </Border.Effect>
+                            <Border.Background>
+                                <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
+                            </Border.Background>
+                        </Border>
+                        
+                        <Button Content="Загрузить фото" 
+                                Command="{Binding UploadAvatarCommand}"
+                                Style="{StaticResource AnimatedButton}"
+                                Background="#42A5F5"
+                                Foreground="White"
+                                BorderThickness="0"
+                                Padding="15,12">
+                            <Button.Effect>
+                                <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.2"/>
+                            </Button.Effect>
+                        </Button>
+                    </StackPanel>
+
+                    <!-- Правая колонка с информацией -->
+                    <StackPanel Grid.Column="1">
+                        <materialDesign:Card Margin="0,0,0,24" UniformCornerRadius="12" Padding="32">
+                            <materialDesign:Card.Effect>
+                                <DropShadowEffect BlurRadius="20" ShadowDepth="2" Opacity="0.1"/>
+                            </materialDesign:Card.Effect>
+                            <StackPanel>
+                                <TextBlock Text="Основная информация" 
+                                           Style="{StaticResource ProfileSectionTitle}"/>
+
+                                <TextBlock Text="ФИО" 
+                                          Margin="0,0,0,8" 
+                                          FontWeight="Medium" 
+                                          Foreground="#555"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ProfileTextBox}"
+                                             Margin="0,0,0,4">
+                                        <TextBox.Resources>
+                                            <Style TargetType="Border" BasedOn="{StaticResource NameValidationBorder}"/>
+                                        </TextBox.Resources>
+                                    </TextBox>
+                                    <TextBlock Grid.Row="1" 
+                                              Text="ФИО должно содержать от 2 до 30 символов"
+                                              Style="{StaticResource NameValidationMessage}"/>
+                                </Grid>
+
+                                <TextBlock Text="Предмет" 
+                                          Margin="0,0,0,8" 
+                                          FontWeight="Medium" 
+                                          Foreground="#555"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <ComboBox SelectedItem="{Binding Subject, UpdateSourceTrigger=PropertyChanged}"
+                                             ItemsSource="{Binding Subjects}"
+                                             Style="{StaticResource ProfileComboBox}"
+                                             Margin="0,0,0,4"/>
+                                    <TextBlock Grid.Row="1" 
+                                              Text="Выберите предмет"
+                                              Style="{StaticResource SubjectValidationMessage}"/>
+                                </Grid>
+
+                                <TextBlock Text="Описание" 
+                                          Margin="0,0,0,8" 
+                                          FontWeight="Medium" 
+                                          Foreground="#555"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ProfileTextBox}"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             Height="120"
+                                             VerticalScrollBarVisibility="Auto"
+                                             Margin="0,0,0,4">
+                                        <TextBox.Resources>
+                                            <Style TargetType="Border" BasedOn="{StaticResource DescriptionValidationBorder}"/>
+                                        </TextBox.Resources>
+                                    </TextBox>
+                                    <TextBlock Grid.Row="1" 
+                                              Text="Описание не должно превышать 200 символов"
+                                              Style="{StaticResource DescriptionValidationMessage}"/>
+                                </Grid>
+
+                                <TextBlock Text="Стоимость за час (BYN)" 
+                                          Margin="0,0,0,8" 
+                                          FontWeight="Medium" 
+                                          Foreground="#555"/>
+                                <Grid>
+                                    <Grid.RowDefinitions>
+                                        <RowDefinition Height="Auto"/>
+                                        <RowDefinition Height="Auto"/>
+                                    </Grid.RowDefinitions>
+                                    <TextBox Text="{Binding PriceText, UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource ProfileTextBox}"
+                                             Margin="0,0,0,4">
+                                        <TextBox.Resources>
+                                            <Style TargetType="Border" BasedOn="{StaticResource PriceValidationBorder}"/>
+                                        </TextBox.Resources>
+                                    </TextBox>
+                                    <TextBlock Grid.Row="1" 
+                                              Text="Введите корректную цену"
+                                              Style="{StaticResource PriceValidationMessage}"/>
+                                </Grid>
+
+                                <TextBlock Text="Рейтинг" 
+                                          Margin="0,0,0,8" 
+                                          FontWeight="Medium" 
+                                          Foreground="#555"/>
+                                <Grid Margin="0,0,0,20">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <StackPanel Grid.Column="0" 
+                                              Orientation="Horizontal" 
+                                              VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding Rating, StringFormat={}{0:F1}}"
+                                                 FontSize="24"
+                                                 FontWeight="Bold"
+                                                 Foreground="#1976D2"
+                                                 VerticalAlignment="Center"
+                                                 Margin="0,0,8,0"/>
+                                        
+                                        <ItemsControl Margin="0,0,16,0">
+                                            <ItemsControl.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <StackPanel Orientation="Horizontal"/>
+                                                </ItemsPanelTemplate>
+                                            </ItemsControl.ItemsPanel>
+                                            <ItemsControl.Items>
+                                                <materialDesign:PackIcon Kind="{Binding Rating, Converter={StaticResource RatingToStarKindConverter}, ConverterParameter=1}"
+                                                                       Width="24" Height="24" 
+                                                                       Foreground="#FFD700" 
+                                                                       Margin="0,0,2,0"/>
+                                                <materialDesign:PackIcon Kind="{Binding Rating, Converter={StaticResource RatingToStarKindConverter}, ConverterParameter=2}"
+                                                                       Width="24" Height="24" 
+                                                                       Foreground="#FFD700" 
+                                                                       Margin="0,0,2,0"/>
+                                                <materialDesign:PackIcon Kind="{Binding Rating, Converter={StaticResource RatingToStarKindConverter}, ConverterParameter=3}"
+                                                                       Width="24" Height="24" 
+                                                                       Foreground="#FFD700" 
+                                                                       Margin="0,0,2,0"/>
+                                                <materialDesign:PackIcon Kind="{Binding Rating, Converter={StaticResource RatingToStarKindConverter}, ConverterParameter=4}"
+                                                                       Width="24" Height="24" 
+                                                                       Foreground="#FFD700" 
+                                                                       Margin="0,0,2,0"/>
+                                                <materialDesign:PackIcon Kind="{Binding Rating, Converter={StaticResource RatingToStarKindConverter}, ConverterParameter=5}"
+                                                                       Width="24" Height="24" 
+                                                                       Foreground="#FFD700"/>
+                                            </ItemsControl.Items>
+                                        </ItemsControl>
+                                    </StackPanel>
+
+                                    <Border Grid.Column="1" 
+                                            Background="#F5F5F5" 
+                                            CornerRadius="4" 
+                                            Padding="12,8"
+                                            Margin="0,0,0,0">
+                                        <TextBlock Text="Рейтинг формируется на основе оценок ваших учеников"
+                                                 Foreground="#666"
+                                                 TextWrapping="Wrap"
+                                                 FontSize="12"/>
+                                    </Border>
+                                </Grid>
+
+                                <CheckBox Content="Сделать профиль видимым"
+                                          IsChecked="{Binding IsVisible, UpdateSourceTrigger=PropertyChanged}"
+                                          Margin="0,8,0,0"/>
+                            </StackPanel>
+                        </materialDesign:Card>
+
+                        <!-- Кнопки управления -->
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,8,0,0">
+                            <Button Content="Назад"
+                                    Command="{Binding GoBackCommand}"
+                                    Style="{StaticResource AnimatedButton}"
+                                    Background="#E0E0E0"
+                                    Foreground="#333333"
+                                    BorderThickness="0"
+                                    Padding="24,12"
+                                    Margin="0,0,16,0">
+                                <Button.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.2"/>
+                                </Button.Effect>
+                            </Button>
+                            
+                            <Button Content="Сохранить"
+                                    Command="{Binding UpdateProfileCommand}"
+                                    Style="{StaticResource AnimatedButton}"
+                                    Background="#42A5F5"
+                                    Foreground="White"
+                                    BorderThickness="0"
+                                    Padding="24,12">
+                                <Button.Effect>
+                                    <DropShadowEffect BlurRadius="10" ShadowDepth="1" Opacity="0.2"/>
+                                </Button.Effect>
+                            </Button>
+                        </StackPanel>
+                    </StackPanel>
+                </Grid>
             </StackPanel>
-
-            <StackPanel Grid.Column="1">
-                <TextBlock Text="ФИО" 
-                           Margin="0,0,0,5" 
-                           Style="{DynamicResource MahApps.Styles.TextBlock}"/>
-                <TextBox Text="{Binding Name, UpdateSourceTrigger=PropertyChanged}" 
-                         Margin="0,0,0,10" 
-                         Style="{DynamicResource MahApps.Styles.TextBox}"
-                         mah:TextBoxHelper.Watermark="Введите ваше ФИО"/>
-
-                <TextBlock Text="Предмет" 
-                           Margin="0,0,0,5" 
-                           Style="{DynamicResource MahApps.Styles.TextBlock}"/>
-                <ComboBox SelectedItem="{Binding Subject}" 
-                          ItemsSource="{Binding Subjects}" 
-                          Margin="0,0,0,10" 
-                          Style="{DynamicResource MahApps.Styles.ComboBox}"
-                          mah:TextBoxHelper.Watermark="Выберите предмет"/>
-
-                <TextBlock Text="Описание" 
-                           Margin="0,0,0,5" 
-                           Style="{DynamicResource MahApps.Styles.TextBlock}"/>
-                <TextBox Text="{Binding Description, UpdateSourceTrigger=PropertyChanged}" 
-                         AcceptsReturn="True" 
-                         Height="100" 
-                         Margin="0,0,0,10" 
-                         Style="{DynamicResource MahApps.Styles.TextBox}"
-                         mah:TextBoxHelper.Watermark="Расскажите о себе"/>
-
-                <TextBlock Text="Стоимость за час (BYN)" 
-                           Margin="0,0,0,5" 
-                           Style="{DynamicResource MahApps.Styles.TextBlock}"/>
-                <TextBox Text="{Binding PricePerHour, UpdateSourceTrigger=PropertyChanged}" 
-                         Margin="0,0,0,10" 
-                         Style="{DynamicResource MahApps.Styles.TextBox}"
-                         mah:TextBoxHelper.Watermark="Введите стоимость"/>
-
-                <TextBlock Text="Рейтинг" 
-                           Margin="0,0,0,5" 
-                           Style="{DynamicResource MahApps.Styles.TextBlock}"/>
-                <TextBox Text="{Binding Rating, UpdateSourceTrigger=PropertyChanged}" 
-                         Margin="0,0,0,10" 
-                         Style="{DynamicResource MahApps.Styles.TextBox}"
-                         mah:TextBoxHelper.Watermark="Введите рейтинг (0-5)"
-                         IsReadOnly="True"/>
-
-                <!-- Галочка "Сделать профиль видимым" -->
-                <CheckBox Content="Сделать профиль видимым" 
-                          IsChecked="{Binding IsVisible, UpdateSourceTrigger=PropertyChanged}" 
-                          Margin="0,0,0,10" 
-                          Style="{DynamicResource MahApps.Styles.CheckBox}"/>
-
-                <Button Content="Сохранить" 
-                        Command="{Binding UpdateProfileCommand}" 
-                        Style="{StaticResource PrimaryButton}" 
-                        Background="#42A5F5" 
-                        BorderBrush="#42A5F5" 
-                        Padding="15,5" 
-                        Margin="0,10,0,0" 
-                        HorizontalAlignment="Right" 
-                        mah:ControlsHelper.CornerRadius="5" Height="35"/>
-            </StackPanel>
-        </Grid>
+        </ScrollViewer>
     </Grid>
 </Page>

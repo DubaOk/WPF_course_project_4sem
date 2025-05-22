@@ -4,13 +4,27 @@
       xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
       xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
       xmlns:converters="clr-namespace:Coach_search.Converters"
-    Title="MainPage"
-      >
+      Title="MainPage">
+    
     <Page.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
         <converters:IntToVisibilityConverter x:Key="IntToVisibilityConverter" />
+
+        <Style x:Key="MenuButtonStyle" TargetType="Button" BasedOn="{StaticResource PrimaryButton}">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="0,4"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#666"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="#E3F2FD"/>
+                    <Setter Property="Foreground" Value="#1976D2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
     </Page.Resources>
-    <Grid Background="{StaticResource BackgroundColor}">
+
+    <Grid Background="#F8F9FA">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="240"/>
             <ColumnDefinition Width="*"/>
@@ -19,14 +33,44 @@
         <!-- Боковое меню -->
         <Border Grid.Column="0" Background="White" Padding="16" BorderThickness="0,0,1,0" BorderBrush="#E0E0E0">
             <StackPanel>
-                <TextBlock Text="TutorSearch" FontSize="22" FontWeight="Bold" Foreground="{StaticResource PrimaryColor}" Margin="0,0,0,24"/>
-                <Button Content="Главная" Command="{Binding NavigateCommand}" CommandParameter="MainPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
-                <Button Content="Расписание" Command="{Binding NavigateCommand}" CommandParameter="SchedulePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <Button Content="Сообщения" Command="{Binding NavigateCommand}" CommandParameter="MessagesPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
-                <Button Content="Личный кабинет" Command="{Binding NavigateCommand}" CommandParameter="SettingsPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <Button Content="Личный кабинет" Command="{Binding NavigateCommand}" CommandParameter="ClientProfilePage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsClient, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <Button Content="Панель администратора" Command="{Binding NavigateCommand}" CommandParameter="AdminPanelPage" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30" Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-                <Button Content="Выход" Command="{Binding LogoutCommand}" Style="{StaticResource PrimaryButton}" Margin="0,8" Height="30"/>
+                <TextBlock Text="TutorSearch" 
+                         FontSize="24" 
+                         FontWeight="Bold" 
+                         Foreground="#1976D2" 
+                         Margin="0,0,0,24"/>
+
+                <Button Content="Главная" 
+                        Command="{Binding NavigateCommand}" 
+                        CommandParameter="MainPage" 
+                        Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Расписание" 
+                        Command="{Binding NavigateCommand}" 
+                        CommandParameter="SchedulePage" 
+                        Style="{StaticResource MenuButtonStyle}"
+                        Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Сообщения" 
+                        Command="{Binding NavigateCommand}" 
+                        CommandParameter="MessagesPage" 
+                        Style="{StaticResource MenuButtonStyle}"/>
+                <Button Content="Личный кабинет" 
+                        Command="{Binding NavigateCommand}" 
+                        CommandParameter="SettingsPage" 
+                        Style="{StaticResource MenuButtonStyle}"
+                        Visibility="{Binding IsTutor, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Личный кабинет" 
+                        Command="{Binding NavigateCommand}" 
+                        CommandParameter="ClientProfilePage" 
+                        Style="{StaticResource MenuButtonStyle}"
+                        Visibility="{Binding IsClient, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Панель администратора" 
+                        Command="{Binding NavigateCommand}" 
+                        CommandParameter="AdminPanelPage" 
+                        Style="{StaticResource MenuButtonStyle}"
+                        Visibility="{Binding IsAdmin, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+                <Button Content="Выход" 
+                        Command="{Binding LogoutCommand}" 
+                        Style="{StaticResource MenuButtonStyle}"
+                        Foreground="#EF5350"/>
             </StackPanel>
         </Border>
 
@@ -38,36 +82,83 @@
             </Grid.RowDefinitions>
 
             <!-- Поиск -->
-            <StackPanel Grid.Row="0" Margin="0,0,0,24">
-                <TextBlock Text="Найдите репетитора" Style="{StaticResource HeaderText}"/>
-                <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                    <ComboBox Width="180" Margin="0,0,12,0" ItemsSource="{Binding Subjects}" SelectedItem="{Binding SearchSubject}" Style="{DynamicResource MahApps.Styles.ComboBox}" mah:TextBoxHelper.Watermark="Предмет"/>
-                    <ComboBox Width="180" Margin="0,0,12,0" ItemsSource="{Binding Ratings}" SelectedItem="{Binding SearchRating}" Style="{DynamicResource MahApps.Styles.ComboBox}" mah:TextBoxHelper.Watermark="Рейтинг"/>
-                    <ComboBox Width="180" Margin="0,0,12,0" ItemsSource="{Binding PriceRanges}" SelectedItem="{Binding SearchPriceRange}" Style="{DynamicResource MahApps.Styles.ComboBox}" mah:TextBoxHelper.Watermark="Цена"/>
-                    <Button Content="Сброс фильтров" Command="{Binding NavigateCommand}" CommandParameter="MainPage" Style="{StaticResource PrimaryButton}" Width="131" Height="32"/>
+            <materialDesign:Card Grid.Row="0" 
+                               UniformCornerRadius="8"
+                               Margin="0,0,0,24"
+                               Background="White"
+                               Padding="16">
+                <StackPanel>
+                    <TextBlock Text="Найдите репетитора" 
+                             FontSize="24"
+                             FontWeight="SemiBold"
+                             Foreground="#1976D2"
+                             Margin="0,0,0,16"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                        <ComboBox Width="180" 
+                                Margin="0,0,12,0" 
+                                ItemsSource="{Binding Subjects}" 
+                                SelectedItem="{Binding SearchSubject}"
+                                mah:TextBoxHelper.Watermark="Предмет"
+                                Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                        <ComboBox Width="180" 
+                                Margin="0,0,12,0" 
+                                ItemsSource="{Binding Ratings}" 
+                                SelectedItem="{Binding SearchRating}"
+                                mah:TextBoxHelper.Watermark="Рейтинг"
+                                Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                        <ComboBox Width="180" 
+                                Margin="0,0,12,0" 
+                                ItemsSource="{Binding PriceRanges}" 
+                                SelectedItem="{Binding SearchPriceRange}"
+                                mah:TextBoxHelper.Watermark="Цена"
+                                Style="{DynamicResource MahApps.Styles.ComboBox}"/>
+                        <Button Content="Сброс фильтров" 
+                                Command="{Binding NavigateCommand}" 
+                                CommandParameter="MainPage" 
+                                Style="{StaticResource PrimaryButton}"
+                                Background="#E0E0E0"
+                                Foreground="#333"
+                                Width="131" 
+                                Height="32"/>
+                    </StackPanel>
                 </StackPanel>
-            </StackPanel>
+            </materialDesign:Card>
 
             <!-- Список репетиторов -->
-            <ScrollViewer Grid.Row="1" Style="{StaticResource CustomScrollViewer}" FocusManager.IsFocusScope="True">
-                <!-- Сообщение об отсутствии репетиторов -->
+            <ScrollViewer Grid.Row="1" Style="{StaticResource CustomScrollViewer}">
                 <StackPanel>
                     <TextBlock Text="По вашему запросу не найдено ни одного репетитора"
-                               FontSize="16"
-                               Foreground="#666"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Margin="0,20,0,0"
-                               Visibility="{Binding Tutors.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=0}"/>
+                             FontSize="16"
+                             Foreground="#666"
+                             HorizontalAlignment="Center"
+                             VerticalAlignment="Center"
+                             Margin="0,32"
+                             Visibility="{Binding Tutors.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=0}"/>
 
                     <ListBox ItemsSource="{Binding Tutors}" 
-                            SelectedItem="{Binding SelectedTutor}" 
-                            Style="{StaticResource ListBoxStyle}"
-                            Visibility="{Binding Tutors.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=1}">
+                           SelectedItem="{Binding SelectedTutor}" 
+                           Style="{StaticResource ListBoxStyle}"
+                           Background="Transparent"
+                           Visibility="{Binding Tutors.Count, Converter={StaticResource IntToVisibilityConverter}, ConverterParameter=1}">
+                        <ListBox.ItemContainerStyle>
+                            <Style TargetType="ListBoxItem">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListBoxItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListBox.ItemContainerStyle>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <Border Style="{StaticResource CardStyle}" HorizontalAlignment="Stretch">
-                                    <Grid HorizontalAlignment="Stretch">
+                                <materialDesign:Card UniformCornerRadius="8" 
+                                                   Margin="0,0,0,16"
+                                                   Background="White">
+                                    <Grid Margin="16">
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="*"/>
@@ -75,40 +166,63 @@
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Аватар -->
-                                        <Ellipse Width="80" Height="80" Margin="0,0,20,0" HorizontalAlignment="Left">
-                                            <Ellipse.Fill>
+                                        <Border Width="80" 
+                                                Height="80" 
+                                                CornerRadius="40"
+                                                Margin="0,0,20,0"
+                                                BorderThickness="2"
+                                                BorderBrush="#E3F2FD">
+                                            <Border.Background>
                                                 <ImageBrush ImageSource="{Binding AvatarPath, FallbackValue=/MVVM/View/images/icons/defaultavatar.png}"/>
-                                            </Ellipse.Fill>
-                                        </Ellipse>
+                                            </Border.Background>
+                                        </Border>
 
                                         <!-- Информация -->
                                         <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Name}" Style="{StaticResource SubHeaderText}" FontSize="18" FontWeight="SemiBold"/>
-                                            <TextBlock Text="{Binding Subject}" Style="{StaticResource BodyText}" FontSize="15"/>
-                                            <TextBlock Text="{Binding PricePerHour, StringFormat={}{0} BYN}" Style="{StaticResource BodyText}" FontSize="15"/>
-                                            <TextBlock Text="{Binding Rating, StringFormat=Рейтинг: {0:F1} ★}" Style="{StaticResource BodyText}" FontSize="15"/>
-                                            <TextBlock Text="{Binding Description}" Style="{StaticResource BodyText}" FontSize="14" TextTrimming="CharacterEllipsis" MaxHeight="50"/>
+                                            <TextBlock Text="{Binding Name}" 
+                                                     FontSize="18" 
+                                                     FontWeight="SemiBold"
+                                                     Foreground="#333"/>
+                                            <TextBlock Text="{Binding Subject}" 
+                                                     FontSize="15"
+                                                     Foreground="#666"/>
+                                            <TextBlock Text="{Binding PricePerHour, StringFormat={}{0} BYN}" 
+                                                     FontSize="15"
+                                                     Foreground="#42A5F5"/>
+                                            <TextBlock Text="{Binding Rating, StringFormat=★ {0:F1}}" 
+                                                     FontSize="15"
+                                                     Foreground="#FFC107"/>
+                                            <TextBlock Text="{Binding Description}" 
+                                                     FontSize="14"
+                                                     Foreground="#666"
+                                                     TextTrimming="CharacterEllipsis" 
+                                                     MaxHeight="50"/>
                                         </StackPanel>
 
                                         <!-- Кнопки -->
-                                        <StackPanel Grid.Column="2" VerticalAlignment="Center" Orientation="Vertical">
+                                        <StackPanel Grid.Column="2" 
+                                                  VerticalAlignment="Center" 
+                                                  Orientation="Vertical">
                                             <Button Content="Записаться" 
                                                     Command="{Binding DataContext.EnrollCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
                                                     CommandParameter="{Binding}"
                                                     Visibility="{Binding DataContext.IsClient, RelativeSource={RelativeSource AncestorType=ListBox}, Converter={StaticResource BooleanToVisibilityConverter}}"
-                                                    Style="{StaticResource SecondaryButton}" 
+                                                    Style="{StaticResource PrimaryButton}"
+                                                    Background="#42A5F5"
                                                     Margin="0,0,0,8" 
                                                     Width="120" 
                                                     Height="40"/>
                                             <Button Content="Подробнее" 
                                                     Command="{Binding DataContext.ShowTutorDetailsCommand, RelativeSource={RelativeSource AncestorType=ListBox}}" 
                                                     CommandParameter="{Binding}" 
-                                                    Style="{StaticResource PrimaryButton}" 
+                                                    Style="{StaticResource PrimaryButton}"
+                                                    Background="#E3F2FD"
+                                                    Foreground="#1976D2"
                                                     Width="120" 
                                                     Height="40"/>
                                         </StackPanel>
                                     </Grid>
-                                </Border>
+                                </materialDesign:Card>
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
